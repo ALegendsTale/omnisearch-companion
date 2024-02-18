@@ -1,0 +1,29 @@
+body {
+    background-color: #202020;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 500px;
+}
+
+.omnisearch-content {
+    display: flex;
+    flex-direction: column;
+    background-color: #4d3ca6;
+    border-radius: 5%;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 5%;
+    flex-wrap: nowrap;
+}
+
+.omnisearch-content a {
+    color: white;
+    text-decoration: none;
+    padding: 2%;
+}
+
+.omnisearch-content a:hover {
+    background-color: #20202080;
+}
