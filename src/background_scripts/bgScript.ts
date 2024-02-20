@@ -2,8 +2,8 @@ browser.runtime.onMessage.addListener(async (query) => {
     if(query != null){
         const port = 51361;
         const response = await fetch(`http://localhost:${port}/search?q=${query}`);
-        response.json().then((r: ResultNoteApi[]) => {
-            const notes = r.filter((v) => v.score > 10)
+        response.json().then((res: ResultNoteApi[]) => {
+            const notes = res.filter((note) => note.score > 10)
             console.log(notes);
     
             browser.runtime.onConnect.addListener((port) => {

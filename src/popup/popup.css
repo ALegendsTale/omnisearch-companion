@@ -18,12 +18,8 @@ body {
     flex-wrap: nowrap;
 }
 
-.omnisearch-content a {
-    color: white;
-    text-decoration: none;
-    padding: 2%;
-}
-
-.omnisearch-content a:hover {
-    background-color: #20202080;
+#settings-button {
+    position: absolute;
+    top: 5vh;
+    right: 5vh;
 }
