@@ -16,7 +16,7 @@
 
     "background": {
       "scripts": ["background_scripts/bgScript.ts"],
-      "persistent": true
+      "persistent": false
     },
   
     "icons": {

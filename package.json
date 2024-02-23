@@ -12,5 +12,8 @@
     "@types/firefox-webext-browser": "^120.0.0",
     "parcel": "^2.11.0",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "lucide": "^0.335.0"
   }
 }

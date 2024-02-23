@@ -22,4 +22,7 @@ body {
     position: absolute;
     top: 5vh;
     right: 5vh;
+    background-color: #202020;
+    border: none;
+    cursor: pointer;
 }
