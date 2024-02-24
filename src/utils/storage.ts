@@ -10,7 +10,7 @@ export default class Storage {
     constructor(){
         this.defaultValues = {
             port: '51361',
-            notesShown: '5',
+            notesShown: '25',
             notesScore: '10'
         }
     }

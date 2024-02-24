@@ -4,7 +4,7 @@ import { createElement, Undo2 } from "lucide";
 const template = document.createElement('template');
 template.innerHTML = `<style>
     :host {
-        margin-bottom: 10px;
+        margin-bottom: 20px;
     }
 
     div {
@@ -26,7 +26,7 @@ template.innerHTML = `<style>
     }
 
     .name-container > .setting-description {
-        font-size: .6rem;
+        font-size: .7rem;
         font-family: Inter;
     }
 
@@ -41,7 +41,7 @@ template.innerHTML = `<style>
         width: 88px;
         height: 100%;
         padding-left: 10px;
-        font-size: .75rem;
+        font-size: .8rem;
         font-family: Inter;
         box-sizing: border-box;
     }
@@ -60,6 +60,11 @@ template.innerHTML = `<style>
     .input-container > button:hover {
         color: var(--purple);
         background-color: var(--grey);
+    }
+
+    .input-container > button > svg {
+        width: 90%;
+        height: 90%;
     }
 </style>`
 

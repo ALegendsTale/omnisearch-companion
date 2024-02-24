@@ -1,4 +1,4 @@
-import { createElement, Settings as SettingsIcon, X as XIcon } from "lucide";
+import { createElement, Settings as SettingsIcon, Save as SaveIcon } from "lucide";
 
 const template = document.createElement('template');
 template.innerHTML = `<style>
@@ -32,6 +32,9 @@ template.innerHTML = `<style>
         width: 1.5rem;
         height: 1.5rem;
     }
+    button:hover > svg{
+        stroke: var(--grey);
+    }
 </style>`
 
 export class Header extends HTMLElement {
@@ -47,7 +50,7 @@ export class Header extends HTMLElement {
         this.container = shadow.appendChild(document.createElement('div'));
         this.name = this.container.appendChild(document.createElement('h1'));
         this.button = this.container.appendChild(document.createElement('button'));
-        this.icon = this.button.appendChild(createElement(settings ? XIcon : SettingsIcon));
+        this.icon = this.button.appendChild(createElement(settings ? SaveIcon : SettingsIcon));
 
         this.name.innerText = 'OMNISEARCH COMPANION';
     }

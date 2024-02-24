@@ -48,6 +48,16 @@ body {
     flex-wrap: nowrap;
     color: var(--dark);
     width: 80%;
+    height: 100%;
     overflow-y: auto;
     scrollbar-width: thin;
+}
+
+p {
+    display: flex;
+    align-self: center;
+    font-family: Inter;
+    font-size: 1rem;
+    color: var(--dark);
+    text-align: center;
 }

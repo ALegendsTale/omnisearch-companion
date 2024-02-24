@@ -19,7 +19,7 @@ function createNotes(res: object) {
     let contentDiv = document.getElementById('omnisearch-content');
     if(contentDiv) contentDiv.innerHTML = 'Loading...';
     if(!notes){
-        if(contentDiv) contentDiv.innerHTML = 'Nothing here yet :(';
+        if(contentDiv) contentDiv.innerHTML = '<p>Nothing here yet :(</p>';
         return;
     }
     if(notes.length < 1){

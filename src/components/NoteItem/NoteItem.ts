@@ -1,5 +1,9 @@
 const template = document.createElement('template');
 template.innerHTML = `<style>
+    :host {
+        margin-bottom: 7px;
+    }
+
     ul {
         display: flex;
         flex: 1;
@@ -16,7 +20,7 @@ template.innerHTML = `<style>
     }
 
     a:hover {
-        background-color: #20202080;
+        color: var(--purple);
     }
 </style>`
 

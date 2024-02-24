@@ -40,6 +40,7 @@ template.innerHTML = `<style>
     flex-wrap: nowrap;
     color: var(--dark);
     width: 80%;
+    height: 100%;
     overflow-y: auto;
     scrollbar-width: thin;
 }
@@ -76,7 +77,6 @@ export class Settings extends HTMLElement {
     port: SettingsField
     notesShown: SettingsField
     notesScore: SettingsField
-    openSettingsButton: HTMLButtonElement
     storage: Storage
     settings: SettingsType
 
@@ -131,20 +131,11 @@ export class Settings extends HTMLElement {
             this.toggleDisplay();
         })
 
-        this.openSettingsButton = this.contentContainer.appendChild(document.createElement('button'));
-        this.openSettingsButton.id = 'open-settings';
-        this.openSettingsButton.innerText = 'Open Settings';
-        this.openSettingsButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            browser.runtime.openOptionsPage();
-        })
-
         // Show settings as an embed
         if(display){
             this.style.display = 'flex';
             this.heading.style.display = 'none';
             this.subHeading.style.display = 'none';
-            this.openSettingsButton.style.display = 'none';
             // Default value for overflow-y
             this.contentContainer.style.overflowY = 'visible';
         }
@@ -158,9 +149,6 @@ export class Settings extends HTMLElement {
     }
     connectedCallback() {
         this.loadSettings();
-    }
-    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-
     }
 
     /**
