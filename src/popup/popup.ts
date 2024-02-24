@@ -1,12 +1,10 @@
-import { createElement, Settings as SettingsIcon } from "lucide";
 import { NoteItem } from "../components/NoteItem/NoteItem";
 import { Settings } from "../components/Settings/Settings";
+import { Header } from "../Header";
 
-const settingsIcon = createElement(SettingsIcon);
-settingsIcon.style.stroke = 'white';
-
-customElements.define('omnisearch-item', NoteItem);
-customElements.define('settings-menu', Settings);
+customElements.define('note-item', NoteItem);
+customElements.define('settings-component', Settings);
+customElements.define('header-component', Header);
 
 let popupPort = browser.runtime.connect({ name: 'popup' });
 if(popupPort.onMessage.hasListener(createNotes)) popupPort.onMessage.removeListener(createNotes);
@@ -16,9 +14,9 @@ function createNotes(res: object) {
     let { query, notes } = res as {query: string, notes: ResultNoteApi[]};
     // Set query text
     let queryText = document.getElementById('query-text');
-    if(queryText) queryText.innerHTML = `<p>Search Query: ${query ? query : ''}</p>`;
+    if(queryText) queryText.innerText = `Search Query: ${query ? query : ''}`;
     // Load notes into container
-    let contentDiv = document.getElementsByClassName('omnisearch-content').item(0);
+    let contentDiv = document.getElementById('omnisearch-content');
     if(contentDiv) contentDiv.innerHTML = 'Loading...';
     if(!notes){
         if(contentDiv) contentDiv.innerHTML = 'Nothing here yet :(';
@@ -41,10 +39,7 @@ function createNotes(res: object) {
 const settings = new Settings();
 document.querySelector('body')?.appendChild(settings);
 
-let settingsButton = document.getElementById("settings-button");
-if(settingsButton){
-    settingsButton.appendChild(settingsIcon);
-    settingsButton.addEventListener('click', (e) => {
-        settings.toggleDisplay();
-    })
-}
+const header = document.getElementsByTagName('header-component')[0] as Header
+header.button.addEventListener('click', (e) => {
+    settings.toggleDisplay();
+})

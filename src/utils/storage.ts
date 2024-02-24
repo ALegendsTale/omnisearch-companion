@@ -1,4 +1,4 @@
-type SettingsType = {
+export type SettingsType = {
     port: string
     notesShown: string
     notesScore: string

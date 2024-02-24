@@ -1,5 +1,10 @@
 import { createElement, X as XIcon } from "lucide";
-import Storage from "../../utils/storage";
+import Storage, { SettingsType } from "../../utils/storage";
+import { SettingsField } from "./SettingsField";
+import _ from 'lodash'
+import { Header } from "../../Header";
+
+customElements.define('settings-field', SettingsField);
 
 const xIcon = createElement(XIcon);
 xIcon.style.stroke = 'black';
@@ -7,19 +12,52 @@ xIcon.style.stroke = 'black';
 const template = document.createElement('template');
 template.innerHTML = `<style>
 :host {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 1;
-    color: black;
-    background-color: white;
+    background-color: var(--grey);
     width: 100%;
-    height: 100%;
 }
 
 #settings-container {
     display: flex;
     flex-direction: column;
-    margin: auto;
-    width: 50%;
-    height: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+}
+
+#settings-content {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--off-white);
+    border-radius: 5px;
+    font-size: 1rem;
+    padding: 5%;
+    margin-bottom: 5%;
+    flex-wrap: nowrap;
+    color: var(--dark);
+    width: 80%;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+}
+
+h3 {
+    color: var(--light-purple);
+    font-weight: bold;
+    font-family: Inter;
+    font-size: 1.25rem;
+    margin: 5%;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
 }
 
 #open-settings {
@@ -28,109 +66,66 @@ template.innerHTML = `<style>
     justify-content: center;
     width: 50%;
     text-align: center;
-}
-
-h1 {
-    display: flex;
-    justify-self: center;
-    align-self: center;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-form > div {
-    display: flex;
-    justify-content: space-between;
-    padding: 2% 0;
-}
-
-form > div > input {
-    width: 50%;
-}
-
-#close-button {
-    position: absolute;
-    top: 5vh;
-    right: 5vh;
-    background-color: white;
-    border: none;
-    cursor: pointer;
+    color: var(--dark);
 }
 </style>`
 
 export class Settings extends HTMLElement {
     container: HTMLDivElement
-    heading: HTMLHeadingElement
+    contentContainer: HTMLDivElement
+    heading: Header
+    subHeading: HTMLHeadingElement
     form: HTMLFormElement
-    portInputContainer: HTMLDivElement
-    portSpan: HTMLSpanElement
-    portInput: HTMLInputElement
-    closeSettingButton: HTMLButtonElement
+    port: SettingsField
+    notesShown: SettingsField
+    notesScore: SettingsField
     openSettingsButton: HTMLButtonElement
-    notesShownContainer: HTMLDivElement
-    notesShownSpan: HTMLSpanElement
-    notesShownInput: HTMLInputElement
-    notesScoreContainer: HTMLDivElement
-    notesScoreSpan: HTMLSpanElement
-    notesScoreInput: HTMLInputElement
     storage: Storage
+    settings: SettingsType
 
     constructor(display?: boolean){
         super();
         // Storage
         this.storage = new Storage();
+        this.settings = {
+            port: '',
+            notesShown: '',
+            notesScore: ''
+        }
         // Create shadow DOM
         const shadow = this.attachShadow({ mode: 'open' });
         shadow.append(template.content.cloneNode(true));
 
-        // Create other components
         this.container = shadow.appendChild(document.createElement('div'));
         this.container.id = 'settings-container'
-        this.heading = this.container.appendChild(document.createElement('h1'));
-        this.heading.innerText = 'Settings';
+
+        this.heading = this.container.appendChild(new Header(true));
+
+        this.subHeading = this.container.appendChild(document.createElement('h3'));
+        this.subHeading.innerText = 'Settings';
+
+        this.contentContainer = this.container.appendChild(document.createElement('div'));
+        this.contentContainer.id = 'settings-content'
 
         // Form items
-        this.form = this.container.appendChild(document.createElement('form'));
+        this.form = this.contentContainer.appendChild(document.createElement('form'));
         this.form.acceptCharset = 'UTF-8'
         // Port settings
-        this.portInputContainer = this.form.appendChild(document.createElement('div'));
-        this.portSpan = this.portInputContainer.appendChild(document.createElement('span'));
-        this.portSpan.innerText = 'Port';
-        this.portInput = this.portInputContainer.appendChild(document.createElement('input'));
-        this.portInput.type = 'text';
-        this.portInput.id = 'port-input';
-        this.portInput.name = 'port';
+        this.port = this.form.appendChild(new SettingsField('Port', 'Set this to the same port that your Omnisearch server is set to.'));
         // Notes shown settings
-        this.notesShownContainer = this.form.appendChild(document.createElement('div'));
-        this.notesShownSpan = this.notesShownContainer.appendChild(document.createElement('span'));
-        this.notesShownSpan.innerText = 'Notes Shown'
-        this.notesShownInput = this.notesShownContainer.appendChild(document.createElement('input'));
-        this.notesShownInput.type = 'text';
-        this.notesShownInput.id = 'notes-shown-input';
-        this.notesShownInput.name = 'notes-shown';
+        this.notesShown = this.form.appendChild(new SettingsField('Notes Shown', 'The number of notes shown per query.'));
         // Notes score settings
-        this.notesScoreContainer = this.form.appendChild(document.createElement('div'));
-        this.notesScoreSpan = this.notesScoreContainer.appendChild(document.createElement('span'));
-        this.notesScoreSpan.innerText = 'Notes Score'
-        this.notesScoreInput = this.notesScoreContainer.appendChild(document.createElement('input'));
-        this.notesScoreInput.type = 'text';
-        this.notesScoreInput.id = 'notes-score-input';
-        this.notesScoreInput.name = 'notes-score';
+        this.notesScore = this.form.appendChild(new SettingsField('Notes Score', 'Filter notes by how closely they relate to your query. Score ranges from 0 - 100.'));
 
         // Close & open buttons
-        this.closeSettingButton = this.container.appendChild(document.createElement('button'));
-        this.closeSettingButton.title = 'Close settings and save'
-        this.closeSettingButton.id = 'close-button';
-        this.closeSettingButton.appendChild(xIcon);
-        this.closeSettingButton.addEventListener('click', async (e) => {
+        this.heading.button.title = 'Close settings and save';
+        this.heading.button.addEventListener('click', async (e) => {
             e.preventDefault();
             await this.saveSettings();
             this.toggleDisplay();
         })
-        this.openSettingsButton = this.container.appendChild(document.createElement('button'));
+
+        this.openSettingsButton = this.contentContainer.appendChild(document.createElement('button'));
         this.openSettingsButton.id = 'open-settings';
         this.openSettingsButton.innerText = 'Open Settings';
         this.openSettingsButton.addEventListener('click', (e) => {
@@ -141,23 +136,16 @@ export class Settings extends HTMLElement {
         // Show settings as an embed
         if(display){
             this.style.display = 'flex';
-            this.closeSettingButton.style.display = 'none';
+            this.heading.button.style.display = 'none';
             this.openSettingsButton.style.display = 'none';
         }
         // Show settings as a toggle
         else{
             this.style.display = 'none';
-            this.style.position = 'absolute';
-            this.style.left = '0';
-            this.style.top = '0';
         }
     }
     connectedCallback() {
         this.loadSettings();
-        this.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveSettings();
-        });
     }
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
 
@@ -171,17 +159,22 @@ export class Settings extends HTMLElement {
     }
 
     private async loadSettings() {
-        const settings = await this.storage.getSettingsStorage();
-        this.portInput.value = settings.port;
-        this.notesShownInput.value = settings.notesShown;
-        this.notesScoreInput.value = settings.notesScore;
+        this.settings = await this.storage.getSettingsStorage();
+        this.port.input.value = this.settings.port;
+        this.notesShown.input.value = this.settings.notesShown;
+        this.notesScore.input.value = this.settings.notesScore;
     }
 
     private async saveSettings() {
-        await this.storage.setSettingsStorage({
-            port: this.portInput.value,
-            notesShown: this.notesShownInput.value,
-            notesScore: this.notesScoreInput.value
-        })
+        const settings = {
+            port: this.port.input.value,
+            notesShown: this.notesShown.input.value,
+            notesScore: this.notesScore.input.value
+        }
+        // Only save if settings have been changed
+        if(!_.isEqual(this.settings, settings)){
+            await this.storage.setSettingsStorage(settings);
+            this.settings = settings;
+        }
     }
 }

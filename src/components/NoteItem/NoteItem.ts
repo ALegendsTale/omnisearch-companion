@@ -1,10 +1,18 @@
 const template = document.createElement('template');
 template.innerHTML = `<style>
+    ul {
+        display: flex;
+        flex: 1;
+        margin: 0;
+        padding-left: 5%;
+    }
+
     a {
-        color: white;
+        color: var(--dark);
         text-decoration: none;
-        cursor: pointer; 
-        padding: 2%;
+        cursor: pointer;
+        font-family: Inter;
+        font-size: 1rem;
     }
 
     a:hover {
@@ -14,13 +22,17 @@ template.innerHTML = `<style>
 
 export class NoteItem extends HTMLElement {
     static observedAttributes = ["href"];
+    list: HTMLUListElement
+    listItem: HTMLLIElement
     anchor: HTMLAnchorElement
 
     constructor(name: string, href: string){
         super();
         const shadow = this.attachShadow({ mode: 'open' });
         shadow.append(template.content.cloneNode(true));
-        this.anchor = shadow.appendChild(document.createElement('a'));
+        this.list = shadow.appendChild(document.createElement('ul'));
+        this.listItem = this.list.appendChild(document.createElement('li'));
+        this.anchor = this.listItem.appendChild(document.createElement('a'));
         this.anchor.innerText = name;
         this.anchor.appendChild(document.createElement('slot'));
         this.anchor.addEventListener('click', async (e) => {

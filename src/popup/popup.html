@@ -2,13 +2,15 @@
 <html>
     <head>
         <link rel="stylesheet" href="popup.css" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     </head>
     <body>
-        <button id="settings-button"></button>
         <div id="popup-content">
-            <h2>Omnisearch Companion</h2>
+            <header-component></header-component>
             <h3 id="query-text">Search Query: </h3>
-            <div class="omnisearch-content">
+            <div id="omnisearch-content">
                 Loading...
             </div>
         </div>
