@@ -4,11 +4,8 @@ template.innerHTML = `<style>
         margin-bottom: 7px;
     }
 
-    ul {
-        display: flex;
-        flex: 1;
-        margin: 0;
-        padding-left: 5%;
+    li {
+        font-family: Inter;
     }
 
     a {
@@ -26,7 +23,6 @@ template.innerHTML = `<style>
 
 export class NoteItem extends HTMLElement {
     static observedAttributes = ["href"];
-    list: HTMLUListElement
     listItem: HTMLLIElement
     anchor: HTMLAnchorElement
 
@@ -34,8 +30,7 @@ export class NoteItem extends HTMLElement {
         super();
         const shadow = this.attachShadow({ mode: 'open' });
         shadow.append(template.content.cloneNode(true));
-        this.list = shadow.appendChild(document.createElement('ul'));
-        this.listItem = this.list.appendChild(document.createElement('li'));
+        this.listItem = shadow.appendChild(document.createElement('li'));
         this.anchor = this.listItem.appendChild(document.createElement('a'));
         this.anchor.innerText = name;
         this.anchor.appendChild(document.createElement('slot'));
