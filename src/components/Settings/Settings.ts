@@ -161,8 +161,14 @@ export class Settings extends HTMLElement {
     private async loadSettings() {
         this.settings = await this.storage.getSettingsStorage();
         this.port.input.value = this.settings.port;
+        // Create synthetic event
+        this.port.input.dispatchEvent(new Event('input', { bubbles: true }));
         this.notesShown.input.value = this.settings.notesShown;
+        // Create synthetic event
+        this.notesShown.input.dispatchEvent(new Event('input', { bubbles: true }));
         this.notesScore.input.value = this.settings.notesScore;
+        // Create synthetic event
+        this.notesScore.input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     private async saveSettings() {

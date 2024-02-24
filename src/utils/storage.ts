@@ -2,11 +2,17 @@ export type SettingsType = {
     port: string
     notesShown: string
     notesScore: string
+    [key: string]: any
 }
 
 export default class Storage {
+    defaultValues: SettingsType
     constructor(){
-
+        this.defaultValues = {
+            port: '51361',
+            notesShown: '5',
+            notesScore: '10'
+        }
     }
 
     /**
@@ -17,9 +23,9 @@ export default class Storage {
         const settingsObject = await browser.storage.sync.get("settings") as {settings: SettingsType};
         const settings = settingsObject.settings;
         return {
-            port: settings?.port || '51361',
-            notesShown: settings?.notesShown || '5',
-            notesScore: settings?.notesScore || '10'
+            port: settings?.port || this.defaultValues.port,
+            notesShown: settings?.notesShown || this.defaultValues.notesShown,
+            notesScore: settings?.notesScore || this.defaultValues.notesScore
         } as SettingsType
     }
     

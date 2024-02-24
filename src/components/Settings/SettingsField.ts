@@ -1,3 +1,4 @@
+import Storage from "../../utils/storage";
 import { createElement, Undo2 } from "lucide";
 
 const template = document.createElement('template');
@@ -57,7 +58,10 @@ template.innerHTML = `<style>
     }
 </style>`
 
+const storage = new Storage();
+
 export class SettingsField extends HTMLElement {
+    fieldName: string
     fieldContainer: HTMLDivElement
     nameContainer: HTMLDivElement
     inputContainer: HTMLDivElement
@@ -70,6 +74,7 @@ export class SettingsField extends HTMLElement {
         super();
         const shadow = this.attachShadow({ mode: 'open' });
         shadow.append(template.content.cloneNode(true));
+        this.fieldName = fieldName;
         const fieldNameSanitized = fieldName.replace(' ', '-').toLowerCase();
         this.fieldContainer = shadow.appendChild(document.createElement('div'));
         this.nameContainer = this.fieldContainer.appendChild(document.createElement('div'));
@@ -86,16 +91,28 @@ export class SettingsField extends HTMLElement {
         this.input.type = 'text';
         this.input.id = `${fieldNameSanitized}-input`;
         this.input.name = fieldNameSanitized;
-        this.reset = this.inputContainer.appendChild(document.createElement('button'));
+        this.reset = this.input.appendChild(document.createElement('button'));
         this.reset.appendChild(createElement(Undo2));
-
         this.reset.addEventListener('click', (e) => {
-            if(confirm(`Reset ${fieldName} to default value?`)){
+            if(confirm(`Reset ${fieldName} to ${this.getDefaultValue()}?`)){
                 console.log(`Reset ${fieldName}`);
             }
         })
     }
-    connectedCallback() {
-
+    async connectedCallback() {
+        // Set display on input change
+        this.input.addEventListener('input', (e) => {
+            const isDefault = this.isDefaultValue();
+            this.reset.style.visibility = isDefault ? 'hidden' : 'visible';
+            this.reset.title = isDefault ? '' : `Reset to ${this.getDefaultValue()}`;
+        })
+    }
+    public isDefaultValue() {
+        if(this.input.value === this.getDefaultValue()) return true;
+        else return false;
+    }
+    public getDefaultValue() {
+        const fieldNameCamel = this.fieldName.charAt(0).toLowerCase() + this.fieldName.slice(1).replace(' ', '');
+        return storage.defaultValues[fieldNameCamel];
     }
 }
