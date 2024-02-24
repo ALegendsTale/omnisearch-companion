@@ -15,6 +15,7 @@ template.innerHTML = `<style>
     div > .name-container {
         display: flex;
         flex-direction: column;
+        margin-right: 5%;
     }
 
     .name-container > .setting-name {
@@ -30,13 +31,14 @@ template.innerHTML = `<style>
     }
 
     div > .input-container {
+        position:  relative;
         display: flex;
         flex-direction: row;
         height: 24px;
     }
 
     .input-container > input {
-        width: 70px;
+        width: 88px;
         height: 100%;
         padding-left: 10px;
         font-size: .75rem;
@@ -45,6 +47,9 @@ template.innerHTML = `<style>
     }
 
     .input-container > button {
+        position: absolute;
+        right: 0;
+        top: 0;
         height: 100%;
         border: none;
         background-color: transparent;
@@ -70,7 +75,7 @@ export class SettingsField extends HTMLElement {
     input: HTMLInputElement
     reset: HTMLButtonElement
 
-    constructor(fieldName: string, fieldDescription: string){
+    constructor(fieldName: string, fieldDescription: string, onSubmit: () => void){
         super();
         const shadow = this.attachShadow({ mode: 'open' });
         shadow.append(template.content.cloneNode(true));
@@ -91,16 +96,25 @@ export class SettingsField extends HTMLElement {
         this.input.type = 'text';
         this.input.id = `${fieldNameSanitized}-input`;
         this.input.name = fieldNameSanitized;
-        this.reset = this.input.appendChild(document.createElement('button'));
+        this.reset = this.inputContainer.appendChild(document.createElement('button'));
         this.reset.appendChild(createElement(Undo2));
         this.reset.addEventListener('click', (e) => {
             if(confirm(`Reset ${fieldName} to ${this.getDefaultValue()}?`)){
-                console.log(`Reset ${fieldName}`);
+                console.info(`Reset ${fieldName}`);
+                this.input.value = this.getDefaultValue();
+                // Synthetic event to trigger reset button to become hidden
+                this.input.dispatchEvent(new Event('input', { bubbles: true }));
+                onSubmit();
+            }
+        })
+        this.input.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter'){
+                onSubmit();
             }
         })
     }
     async connectedCallback() {
-        // Set display on input change
+        // input value is set after loading storage in settings
         this.input.addEventListener('input', (e) => {
             const isDefault = this.isDefaultValue();
             this.reset.style.visibility = isDefault ? 'hidden' : 'visible';

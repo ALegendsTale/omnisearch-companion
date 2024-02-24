@@ -48,6 +48,6 @@ body {
     flex-wrap: nowrap;
     color: var(--dark);
     width: 80%;
-    overflow-y: scroll;
+    overflow-y: auto;
     scrollbar-width: thin;
 }

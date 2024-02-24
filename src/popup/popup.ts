@@ -2,9 +2,9 @@ import { NoteItem } from "../components/NoteItem/NoteItem";
 import { Settings } from "../components/Settings/Settings";
 import { Header } from "../Header";
 
-customElements.define('note-item', NoteItem);
-customElements.define('settings-component', Settings);
-customElements.define('header-component', Header);
+if(customElements.get('note-item') == undefined) customElements.define('note-item', NoteItem);
+if(customElements.get('settings-component') == undefined) customElements.define('settings-component', Settings);
+if(customElements.get('header-component') == undefined) customElements.define('header-component', Header);
 
 let popupPort = browser.runtime.connect({ name: 'popup' });
 if(popupPort.onMessage.hasListener(createNotes)) popupPort.onMessage.removeListener(createNotes);

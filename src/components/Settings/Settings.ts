@@ -4,7 +4,7 @@ import { SettingsField } from "./SettingsField";
 import _ from 'lodash'
 import { Header } from "../../Header";
 
-customElements.define('settings-field', SettingsField);
+if(customElements.get('settings-field') == undefined) customElements.define('settings-field', SettingsField);
 
 const xIcon = createElement(XIcon);
 xIcon.style.stroke = 'black';
@@ -12,9 +12,6 @@ xIcon.style.stroke = 'black';
 const template = document.createElement('template');
 template.innerHTML = `<style>
 :host {
-    position: absolute;
-    top: 0;
-    left: 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -43,7 +40,7 @@ template.innerHTML = `<style>
     flex-wrap: nowrap;
     color: var(--dark);
     width: 80%;
-    overflow-y: scroll;
+    overflow-y: auto;
     scrollbar-width: thin;
 }
 
@@ -111,13 +108,22 @@ export class Settings extends HTMLElement {
         this.form = this.contentContainer.appendChild(document.createElement('form'));
         this.form.acceptCharset = 'UTF-8'
         // Port settings
-        this.port = this.form.appendChild(new SettingsField('Port', 'Set this to the same port that your Omnisearch server is set to.'));
+        this.port = this.form.appendChild(new SettingsField('Port', 'Set this to the same port that your Omnisearch server is set to.', 
+        async () => {
+            await this.saveSettings();
+        }));
         // Notes shown settings
-        this.notesShown = this.form.appendChild(new SettingsField('Notes Shown', 'The number of notes shown per query.'));
+        this.notesShown = this.form.appendChild(new SettingsField('Notes Shown', 'The number of notes shown per query.', 
+        async () => {
+            await this.saveSettings();
+        }));
         // Notes score settings
-        this.notesScore = this.form.appendChild(new SettingsField('Notes Score', 'Filter notes by how closely they relate to your query. Score ranges from 0 - 100.'));
+        this.notesScore = this.form.appendChild(new SettingsField('Notes Score', 'Filter notes by how closely they relate to your query. Score ranges from 0 - 100.', 
+        async () => {
+            await this.saveSettings();
+        }));
 
-        // Close & open buttons
+        // Close button
         this.heading.button.title = 'Close settings and save';
         this.heading.button.addEventListener('click', async (e) => {
             e.preventDefault();
@@ -136,12 +142,18 @@ export class Settings extends HTMLElement {
         // Show settings as an embed
         if(display){
             this.style.display = 'flex';
-            this.heading.button.style.display = 'none';
+            this.heading.style.display = 'none';
+            this.subHeading.style.display = 'none';
             this.openSettingsButton.style.display = 'none';
+            // Default value for overflow-y
+            this.contentContainer.style.overflowY = 'visible';
         }
         // Show settings as a toggle
         else{
             this.style.display = 'none';
+            this.style.position = 'absolute';
+            this.style.top = '0';
+            this.style.left = '0';
         }
     }
     connectedCallback() {
