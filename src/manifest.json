@@ -20,7 +20,7 @@
     },
   
     "icons": {
-      "256": "../icons/obsidian-256.png"
+      "300": "../icons/Icon.png"
     },
 
     "options_ui": {
@@ -39,7 +39,7 @@
     },
 
     "browser_action": {
-      "default_icon": "../icons/obsidian-256.png",
+      "default_icon": "../icons/Icon.png",
       "default_title": "Omnisearch Companion",
       "default_popup": "popup/popup.html"
     }
