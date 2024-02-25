@@ -9,7 +9,7 @@ template.innerHTML = `<style>
     }
 
     a {
-        color: var(--dark);
+        color: var(--text);
         text-decoration: none;
         cursor: pointer;
         font-family: Inter;
@@ -17,7 +17,7 @@ template.innerHTML = `<style>
     }
 
     a:hover {
-        color: var(--purple);
+        color: var(--highlight);
     }
 </style>`
 

@@ -34,32 +34,40 @@ template.innerHTML = `<style>
         position:  relative;
         display: flex;
         flex-direction: row;
-        height: 24px;
+        flex-basis: 88px;
+        justify-content: center;
+        align-items: center;
     }
 
     .input-container > input {
         width: 88px;
-        height: 100%;
+        height: 24px;
         padding-left: 10px;
         font-size: .8rem;
         font-family: Inter;
         box-sizing: border-box;
+        color: var(--dark);
+        background-color: var(--off-white);
+    }
+
+    .input-container > input:hover {
+        color: var(--highlight)
     }
 
     .input-container > button {
         position: absolute;
         right: 0;
         top: 0;
-        height: 100%;
+        height: 24px;
         border: none;
         background-color: transparent;
-        color: var(--dark);
+        color: var(--text);
         box-sizing: border-box;
     }
 
     .input-container > button:hover {
-        color: var(--purple);
-        background-color: var(--grey);
+        color: var(--highlight);
+        background-color: var(--background);
     }
 
     .input-container > button > svg {

@@ -1,9 +1,5 @@
 import Storage from "../utils/storage";
 
-type OriginType = 
-| 'query'
-| 'storage'
-
 const storage = new Storage();
 
 let query: string;

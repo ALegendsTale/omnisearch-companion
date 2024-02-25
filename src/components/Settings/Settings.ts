@@ -1,10 +1,12 @@
-import { createElement, X as XIcon } from "lucide";
+import { createElement, Sun, X as XIcon } from "lucide";
 import Storage, { SettingsType } from "../../utils/storage";
 import { SettingsField } from "./SettingsField";
 import _ from 'lodash'
 import { Header } from "../Header";
+import { SettingsButton } from "./SettingsButton";
 
 if(customElements.get('settings-field') == undefined) customElements.define('settings-field', SettingsField);
+if(customElements.get('settings-button') == undefined) customElements.define('settings-button', SettingsButton);
 
 const xIcon = createElement(XIcon);
 xIcon.style.stroke = 'black';
@@ -16,7 +18,7 @@ template.innerHTML = `<style>
     justify-content: center;
     align-items: center;
     z-index: 1;
-    background-color: var(--grey);
+    background-color: var(--background);
     width: 100%;
 }
 
@@ -32,13 +34,13 @@ template.innerHTML = `<style>
 #settings-content {
     display: flex;
     flex-direction: column;
-    background-color: var(--off-white);
+    background-color: var(--text-box);
     border-radius: 5px;
     font-size: 1rem;
     padding: 5%;
     margin-bottom: 5%;
     flex-wrap: nowrap;
-    color: var(--dark);
+    color: var(--text);
     width: 80%;
     height: 100%;
     overflow-y: auto;
@@ -64,7 +66,7 @@ form {
     justify-content: center;
     width: 50%;
     text-align: center;
-    color: var(--dark);
+    color: var(--text);
 }
 </style>`
 
@@ -77,6 +79,7 @@ export class Settings extends HTMLElement {
     port: SettingsField
     notesShown: SettingsField
     notesScore: SettingsField
+    theme: SettingsButton
     storage: Storage
     settings: SettingsType
 
@@ -87,7 +90,8 @@ export class Settings extends HTMLElement {
         this.settings = {
             port: '',
             notesShown: '',
-            notesScore: ''
+            notesScore: '',
+            theme: 'light',
         }
         // Create shadow DOM
         const shadow = this.attachShadow({ mode: 'open' });
@@ -119,6 +123,10 @@ export class Settings extends HTMLElement {
         }));
         // Notes score settings
         this.notesScore = this.form.appendChild(new SettingsField('Notes Score', 'Filter notes by how closely they relate to your query. Score ranges from 0 - 100.', 
+        async () => {
+            await this.saveSettings();
+        }));
+        this.theme = this.form.appendChild(new SettingsButton('Theme', 'Change Omnisearch Companion appearance.', Sun,
         async () => {
             await this.saveSettings();
         }));
@@ -160,22 +168,27 @@ export class Settings extends HTMLElement {
 
     private async loadSettings() {
         this.settings = await this.storage.getSettingsStorage();
+
         this.port.input.value = this.settings.port;
         // Create synthetic event
         this.port.input.dispatchEvent(new Event('input', { bubbles: true }));
+
         this.notesShown.input.value = this.settings.notesShown;
-        // Create synthetic event
         this.notesShown.input.dispatchEvent(new Event('input', { bubbles: true }));
+
         this.notesScore.input.value = this.settings.notesScore;
-        // Create synthetic event
         this.notesScore.input.dispatchEvent(new Event('input', { bubbles: true }));
+
+        this.theme.value = this.settings.theme;
+        this.theme.button.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     private async saveSettings() {
-        const settings = {
+        const settings: SettingsType = {
             port: this.port.input.value,
             notesShown: this.notesShown.input.value,
-            notesScore: this.notesScore.input.value
+            notesScore: this.notesScore.input.value,
+            theme: this.theme.value
         }
         // Only save if settings have been changed
         if(!_.isEqual(this.settings, settings)){

@@ -2,8 +2,13 @@ export type SettingsType = {
     port: string
     notesShown: string
     notesScore: string
+    theme: ThemeType
     [key: string]: any
 }
+
+export type ThemeType = 
+| 'light'
+| 'dark'
 
 export default class Storage {
     defaultValues: SettingsType
@@ -11,7 +16,8 @@ export default class Storage {
         this.defaultValues = {
             port: '51361',
             notesShown: '25',
-            notesScore: '10'
+            notesScore: '10',
+            theme: 'light'
         }
     }
 
@@ -25,7 +31,8 @@ export default class Storage {
         return {
             port: settings?.port || this.defaultValues.port,
             notesShown: settings?.notesShown || this.defaultValues.notesShown,
-            notesScore: settings?.notesScore || this.defaultValues.notesScore
+            notesScore: settings?.notesScore || this.defaultValues.notesScore,
+            theme: settings?.theme || this.defaultValues.theme
         } as SettingsType
     }
     

@@ -1,14 +1,20 @@
 :root {
     --grey: #E3E5E8;
     --dark: #2E3338;
+    --dark-2: #1E1E1E;
     --purple: #6C31E3;
     --light-purple: #8758FF;
     --off-white: #F5F6F8;
+
+    --background: var(--grey);
+    --text: var(--dark);
+    --text-box: var(--off-white);
+    --highlight: var(--purple);
 }
 
 body {
-    background-color: var(--grey);
-    color: var(--dark);
+    background-color: var(--background);
+    color: var(--text);
     position: relative;
     display: flex;
     justify-content: center;
@@ -40,13 +46,13 @@ body {
 #omnisearch-content {
     display: flex;
     flex-direction: column;
-    background-color: var(--off-white);
+    background-color: var(--text-box);
     border-radius: 5px;
     font-size: 1rem;
     margin: 0 5% 5% 5%;
     padding: 5% 5% 5% 10%;
     flex-wrap: nowrap;
-    color: var(--dark);
+    color: var(--text);
     width: 75%;
     height: 100%;
     overflow-y: auto;
@@ -58,6 +64,6 @@ p {
     align-self: center;
     font-family: Inter;
     font-size: 1rem;
-    color: var(--dark);
+    color: var(--text);
     text-align: center;
 }
