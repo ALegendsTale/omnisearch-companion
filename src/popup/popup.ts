@@ -1,6 +1,6 @@
 import { NoteItem } from "../components/NoteItem/NoteItem";
 import { Settings } from "../components/Settings/Settings";
-import { Header } from "../Header";
+import { Header } from "../components/Header";
 
 if(customElements.get('note-item') == undefined) customElements.define('note-item', NoteItem);
 if(customElements.get('settings-component') == undefined) customElements.define('settings-component', Settings);

@@ -4,7 +4,8 @@
   "scripts": {
     "parcel-start": "parcel watch src/manifest.json --host localhost",
     "build": "parcel build src/manifest.json",
-    "start": "web-ext run -s dist/ --devtools"
+    "start": "web-ext run -s dist/ --devtools",
+    "export": "web-ext build -s dist/"
   },
   "devDependencies": {
     "@parcel/config-webextension": "^2.11.0",

@@ -1,4 +1,4 @@
-import { Header } from "../Header";
+import { Header } from "../components/Header";
 import { Settings } from "../components/Settings/Settings";
 
 // Define settings / header in case they haven't been defined in popup yet

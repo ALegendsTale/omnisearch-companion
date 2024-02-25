@@ -2,7 +2,7 @@ import { createElement, X as XIcon } from "lucide";
 import Storage, { SettingsType } from "../../utils/storage";
 import { SettingsField } from "./SettingsField";
 import _ from 'lodash'
-import { Header } from "../../Header";
+import { Header } from "../Header";
 
 if(customElements.get('settings-field') == undefined) customElements.define('settings-field', SettingsField);
 
