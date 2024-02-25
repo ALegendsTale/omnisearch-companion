@@ -131,4 +131,4 @@ dist
 
 .vscode
 
-web-ext-artifacts/
+web-ext-artifacts/*
