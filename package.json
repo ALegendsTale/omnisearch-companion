@@ -4,8 +4,13 @@
   "scripts": {
     "parcel-start": "parcel watch src/manifest.json --host localhost",
     "build": "parcel build src/manifest.json",
+    "build-clean": "npm run clean && parcel build src/manifest.json",
+    "build-prod": "parcel build src/manifest.json --no-source-maps --dist-dir dist-prod",
+    "build-prod-clean": "npm run clean-prod && parcel build src/manifest.json --no-source-maps --dist-dir dist-prod",
     "start": "web-ext run -s dist/ --devtools",
-    "export": "web-ext build -s dist/"
+    "export": "web-ext build -s dist-prod",
+    "clean": "rimraf dist",
+    "clean-prod": "rimraf dist-prod"
   },
   "devDependencies": {
     "@parcel/config-webextension": "^2.11.0",
@@ -13,13 +18,17 @@
     "@types/firefox-webext-browser": "^120.0.0",
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.11.20",
+    "@types/sanitize-html": "^2.11.0",
     "@types/showdown": "^2.0.6",
+    "buffer": "^6.0.3",
     "parcel": "^2.11.0",
+    "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
   },
   "dependencies": {
     "lodash": "^4.17.21",
     "lucide": "^0.335.0",
+    "sanitize-html": "^2.12.1",
     "showdown": "^2.1.0"
   }
 }

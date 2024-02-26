@@ -3,6 +3,7 @@ import { Settings } from "../components/Settings/Settings";
 import { Header } from "../components/Header";
 import Showdown from "showdown";
 import { ChevronDown, ChevronUp, createElement } from "lucide";
+import sanitize from "sanitize-html";
 
 if(customElements.get('note-item') == undefined) customElements.define('note-item', NoteItem);
 if(customElements.get('settings-component') == undefined) customElements.define('settings-component', Settings);
@@ -32,6 +33,12 @@ function setButtonSVG() {
     previewButtonIcon = previewButton.appendChild(createElement(previewContent?.style.display === 'flex' ? ChevronDown : ChevronUp));
 }
 
+function createTextEl(text: string) {
+    let textEl = document.createElement('p');
+    textEl.innerText = text;
+    return textEl;
+}
+
 function createNotes(res: object) {
     let { query, notes } = res as {query: string, notes: ResultNoteApi[]};
     // Set query text
@@ -39,24 +46,24 @@ function createNotes(res: object) {
     if(queryText) queryText.innerText = `Search Query: ${query ? query : ''}`;
     // Load notes into container
     let contentDiv = document.getElementById('omnisearch-content');
-    if(contentDiv) contentDiv.innerHTML = 'Loading...';
+    if(contentDiv) contentDiv.replaceChildren(createTextEl('Loading...'));
     if(!notes){
-        if(contentDiv) contentDiv.innerHTML = '<p>Nothing here yet :(</p>';
+        if(contentDiv) contentDiv.replaceChildren(createTextEl('Nothing here yet :('));
         return;
     }
     if(notes.length < 1){
-        if(contentDiv) contentDiv.innerHTML = '<p>No notes match this query</p>';
+        if(contentDiv) contentDiv.replaceChildren(createTextEl('No notes match this query'));
         return;
     }
     for(let [i, note] of notes.entries()){
         if(i === 0 && note != null){
             if(contentDiv)
-            contentDiv.innerHTML = '';
+            contentDiv.replaceChildren('');
         }
         const noteEl = new NoteItem(note)
         noteEl.anchor.addEventListener('mouseover', (e) => {
             if (previewContent)
-            previewContent.innerHTML = showdown.makeHtml(note.excerpt);
+            previewContent.innerHTML = sanitize(showdown.makeHtml(note.excerpt));
         })
         contentDiv?.appendChild(noteEl);
     }
