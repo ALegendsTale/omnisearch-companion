@@ -20,17 +20,17 @@ let previewContent = document.getElementById('preview-content');
 if(previewContent) previewContent.style.display = 'none';
 const previewButton = document.getElementById('preview-button');
 // Set initial svg
-setButtonSVG();
+setButtonState();
 let previewButtonIcon: SVGElement;
 previewButton?.addEventListener('click', (e) => {
     if(previewContent) previewContent.style.display = previewContent?.style.display === 'flex' ? 'none' : 'flex';
     if(previewButtonIcon) previewButton.removeChild(previewButtonIcon);
-    setButtonSVG();
+    setButtonState();
 })
 
-function setButtonSVG() {
-    if(previewButton)
-    previewButtonIcon = previewButton.appendChild(createElement(previewContent?.style.display === 'flex' ? ChevronDown : ChevronUp));
+function setButtonState() {
+    if(previewButton) previewButtonIcon = previewButton.appendChild(createElement(previewContent?.style.display === 'flex' ? ChevronDown : ChevronUp));
+    if (previewButton) previewButton.title = `${previewContent?.style.display === 'flex' ? 'Close' : 'Open'} preview window`
 }
 
 function createTextEl(text: string) {
