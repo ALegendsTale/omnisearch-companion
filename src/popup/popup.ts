@@ -1,6 +1,8 @@
 import { NoteItem } from "../components/NoteItem/NoteItem";
 import { Settings } from "../components/Settings/Settings";
 import { Header } from "../components/Header";
+import Showdown from "showdown";
+import { ChevronDown, ChevronUp, createElement } from "lucide";
 
 if(customElements.get('note-item') == undefined) customElements.define('note-item', NoteItem);
 if(customElements.get('settings-component') == undefined) customElements.define('settings-component', Settings);
@@ -9,6 +11,26 @@ if(customElements.get('header-component') == undefined) customElements.define('h
 let popupPort = browser.runtime.connect({ name: 'popup' });
 if(popupPort.onMessage.hasListener(createNotes)) popupPort.onMessage.removeListener(createNotes);
 popupPort.onMessage.addListener((res) => createNotes(res));
+
+const showdown = new Showdown.Converter();
+showdown.setFlavor('github');
+
+let previewContent = document.getElementById('preview-content');
+if(previewContent) previewContent.style.display = 'none';
+const previewButton = document.getElementById('preview-button');
+// Set initial svg
+setButtonSVG();
+let previewButtonIcon: SVGElement;
+previewButton?.addEventListener('click', (e) => {
+    if(previewContent) previewContent.style.display = previewContent?.style.display === 'flex' ? 'none' : 'flex';
+    if(previewButtonIcon) previewButton.removeChild(previewButtonIcon);
+    setButtonSVG();
+})
+
+function setButtonSVG() {
+    if(previewButton)
+    previewButtonIcon = previewButton.appendChild(createElement(previewContent?.style.display === 'flex' ? ChevronDown : ChevronUp));
+}
 
 function createNotes(res: object) {
     let { query, notes } = res as {query: string, notes: ResultNoteApi[]};
@@ -23,16 +45,20 @@ function createNotes(res: object) {
         return;
     }
     if(notes.length < 1){
-        if(contentDiv) contentDiv.innerHTML = 'No notes match this query';
+        if(contentDiv) contentDiv.innerHTML = '<p>No notes match this query</p>';
         return;
     }
-    for(let [i, data] of notes.entries()){
-        if(i === 0 && data != null){
+    for(let [i, note] of notes.entries()){
+        if(i === 0 && note != null){
             if(contentDiv)
             contentDiv.innerHTML = '';
         }
-        const noteItem = new NoteItem(data.basename, `obsidian://open?vault=ObsidianVault&file=${data.path}`);
-        contentDiv?.appendChild(noteItem);
+        const noteEl = new NoteItem(note)
+        noteEl.anchor.addEventListener('mouseover', (e) => {
+            if (previewContent)
+            previewContent.innerHTML = showdown.makeHtml(note.excerpt);
+        })
+        contentDiv?.appendChild(noteEl);
     }
 }
 

@@ -11,6 +11,7 @@ template.innerHTML = `<style>
         align-items: center;
         background-color: var(--purple);
         width: 100%;
+        height: 60px;
         gap: 5%;
         box-sizing: border-box;
     }
