@@ -1,5 +1,4 @@
 import Storage from "../../utils/storage";
-import { createElement, Undo2 } from "lucide";
 
 const template = document.createElement('template');
 template.innerHTML = `<style>
@@ -30,116 +29,71 @@ template.innerHTML = `<style>
         font-family: Inter;
     }
 
-    div > .input-container {
+    div > .interface-container {
         position:  relative;
         display: flex;
         flex-direction: row;
         flex-basis: 88px;
+        flex-shrink: 0;
         justify-content: center;
         align-items: center;
     }
 
-    .input-container > input {
-        width: 88px;
-        height: 24px;
-        padding-left: 10px;
-        font-size: .8rem;
-        font-family: Inter;
-        box-sizing: border-box;
-        color: var(--dark);
-        background-color: var(--off-white);
+    .interface-container > button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    .input-container > input:hover {
-        color: var(--highlight)
+    .interface-container > button > svg {
+        width: 90%;
+        height: 90%;
+        stroke: var(--text);
     }
 
-    .input-container > button {
-        position: absolute;
-        right: 0;
-        top: 0;
-        height: 24px;
-        border: none;
-        background-color: transparent;
-        color: var(--text);
-        box-sizing: border-box;
-    }
-
-    .input-container > button:hover {
-        color: var(--highlight);
+    .interface-container > button:hover {
         background-color: var(--background);
     }
 
-    .input-container > button > svg {
-        width: 90%;
-        height: 90%;
+    .interface-container > button:hover > svg {
+        stroke: var(--highlight);
     }
 </style>`
 
-const storage = new Storage();
-
 export class SettingsField extends HTMLElement {
+    shadow: ShadowRoot
     fieldName: string
     fieldContainer: HTMLDivElement
     nameContainer: HTMLDivElement
-    inputContainer: HTMLDivElement
+    interfaceContainer: HTMLDivElement
     name: HTMLSpanElement
     description: HTMLSpanElement
-    input: HTMLInputElement
-    reset: HTMLButtonElement
+    storage: Storage
 
     constructor(fieldName: string, fieldDescription: string, onSubmit: () => void){
         super();
-        const shadow = this.attachShadow({ mode: 'open' });
-        shadow.append(template.content.cloneNode(true));
+        this.shadow = this.attachShadow({ mode: 'open' });
+        this.shadow.append(template.content.cloneNode(true));
+        this.storage = new Storage();
         this.fieldName = fieldName;
-        const fieldNameSanitized = fieldName.replace(' ', '-').toLowerCase();
-        this.fieldContainer = shadow.appendChild(document.createElement('div'));
+        this.fieldContainer = this.shadow.appendChild(document.createElement('div'));
         this.nameContainer = this.fieldContainer.appendChild(document.createElement('div'));
         this.nameContainer.className = 'name-container';
-        this.inputContainer = this.fieldContainer.appendChild(document.createElement('div'));
-        this.inputContainer.className = 'input-container';
+        this.interfaceContainer = this.fieldContainer.appendChild(document.createElement('div'));
+        this.interfaceContainer.className = 'interface-container';
         this.name = this.nameContainer.appendChild(document.createElement('span'));
         this.name.className = 'setting-name'
         this.name.innerText = fieldName;
         this.description = this.nameContainer.appendChild(document.createElement('span'));
         this.description.className = 'setting-description'
         this.description.innerText = fieldDescription;
-        this.input = this.inputContainer.appendChild(document.createElement('input'));
-        this.input.type = 'text';
-        this.input.id = `${fieldNameSanitized}-input`;
-        this.input.name = fieldNameSanitized;
-        this.reset = this.inputContainer.appendChild(document.createElement('button'));
-        this.reset.appendChild(createElement(Undo2));
-        this.reset.addEventListener('click', (e) => {
-            if(confirm(`Reset ${fieldName} to ${this.getDefaultValue()}?`)){
-                console.info(`Reset ${fieldName}`);
-                this.input.value = this.getDefaultValue();
-                // Synthetic event to trigger reset button to become hidden
-                this.input.dispatchEvent(new Event('input', { bubbles: true }));
-                onSubmit();
-            }
-        })
-        this.input.addEventListener('keydown', (e) => {
-            if(e.key === 'Enter'){
-                onSubmit();
-            }
-        })
     }
-    async connectedCallback() {
-        // input value is set after loading storage in settings
-        this.input.addEventListener('input', (e) => {
-            const isDefault = this.isDefaultValue();
-            this.reset.style.visibility = isDefault ? 'hidden' : 'visible';
-            this.reset.title = isDefault ? '' : `Reset to ${this.getDefaultValue()}`;
-        })
-    }
-    public isDefaultValue() {
-        if(this.input.value === this.getDefaultValue()) return true;
+    public isDefaultValue(fieldValue: any) {
+        if(fieldValue === this.getDefaultValue()) return true;
         else return false;
     }
     public getDefaultValue() {
         const fieldNameCamel = this.fieldName.charAt(0).toLowerCase() + this.fieldName.slice(1).replace(' ', '');
-        return storage.defaultValues[fieldNameCamel];
+        return this.storage.defaultValues[fieldNameCamel];
     }
 }

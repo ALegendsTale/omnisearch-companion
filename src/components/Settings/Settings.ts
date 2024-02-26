@@ -1,11 +1,11 @@
 import { createElement, Sun, X as XIcon } from "lucide";
 import Storage, { SettingsType } from "../../utils/storage";
-import { SettingsField } from "./SettingsField";
+import { SettingsInput } from "./SettingsInput";
 import _ from 'lodash'
 import { Header } from "../Header";
 import { SettingsButton } from "./SettingsButton";
 
-if(customElements.get('settings-field') == undefined) customElements.define('settings-field', SettingsField);
+if(customElements.get('settings-input') == undefined) customElements.define('settings-input', SettingsInput);
 if(customElements.get('settings-button') == undefined) customElements.define('settings-button', SettingsButton);
 
 const xIcon = createElement(XIcon);
@@ -76,9 +76,9 @@ export class Settings extends HTMLElement {
     heading: Header
     subHeading: HTMLHeadingElement
     form: HTMLFormElement
-    port: SettingsField
-    notesShown: SettingsField
-    notesScore: SettingsField
+    port: SettingsInput
+    notesShown: SettingsInput
+    notesScore: SettingsInput
     theme: SettingsButton
     storage: Storage
     settings: SettingsType
@@ -112,17 +112,17 @@ export class Settings extends HTMLElement {
         this.form = this.contentContainer.appendChild(document.createElement('form'));
         this.form.acceptCharset = 'UTF-8'
         // Port settings
-        this.port = this.form.appendChild(new SettingsField('Port', 'Set this to the same port that your Omnisearch server is set to.', 
+        this.port = this.form.appendChild(new SettingsInput('Port', 'Set this to the same port that your Omnisearch server is set to.', 
         async () => {
             await this.saveSettings();
         }));
         // Notes shown settings
-        this.notesShown = this.form.appendChild(new SettingsField('Notes Shown', 'The number of notes shown per query.', 
+        this.notesShown = this.form.appendChild(new SettingsInput('Notes Shown', 'The number of notes shown per query.', 
         async () => {
             await this.saveSettings();
         }));
         // Notes score settings
-        this.notesScore = this.form.appendChild(new SettingsField('Notes Score', 'Filter notes by how closely they relate to your query. Score ranges from 0 - 100.', 
+        this.notesScore = this.form.appendChild(new SettingsInput('Notes Score', 'Filter notes by how closely they relate to your query. Score ranges from 0 - 100.', 
         async () => {
             await this.saveSettings();
         }));
