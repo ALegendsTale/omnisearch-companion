@@ -4,6 +4,12 @@ This extension displays relevant notes using the powerful [Omnisearch](https://g
 
 ![](OC_Demo.png) ![](OC_Settings_Demo.png)
 
+## Permissions Notice
+#### Tabs
+The tabs permission is required to retrieve URL queries which Omnisearch uses to determine which notes to fetch.
+#### Storage
+The storage permission is required to store settings for the plugin to function.
+
 ## Installation
 
 - Install the Omnisearch plugin for Obsidian and enable the local HTTP server option
