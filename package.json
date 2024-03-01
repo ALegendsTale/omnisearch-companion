@@ -21,7 +21,8 @@
     "build-cr": "parcel build src/_chrome/manifest.json",
     "start-cr": "web-ext run -s dist/ --devtools --target chromium",
     "prod-cr": "parcel build src/_chrome/manifest.json --no-source-maps --dist-dir dist-prod",
-    "export-cr": "web-ext build -s dist-prod"
+    "export-cr": "web-ext build -s dist-prod",
+    "version": "node version-bump.mjs && git add src/_firefox/manifest.json && git add src/_chrome/manifest.json"
   },
   "devDependencies": {
     "@parcel/config-webextension": "^2.11.0",
