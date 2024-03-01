@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 const template = document.createElement('template');
 template.innerHTML = `<style>
     :host {

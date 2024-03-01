@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 const params = new URLSearchParams(window.location.search);
 const query = params.get('q');
 browser.runtime.sendMessage({ sender: 'cScript', value: query });

@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import { NoteItem } from "../components/NoteItem/NoteItem";
 import { Settings } from "../components/Settings/Settings";
 import { Header } from "../components/Header";

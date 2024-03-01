@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 export type SettingsType = {
     port: string
     notesShown: string

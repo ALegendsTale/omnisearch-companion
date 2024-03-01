@@ -1,8 +1,10 @@
+import browser from 'webextension-polyfill';
 import Storage from "../utils/storage";
+import { isManifestV3 } from '../utils/helpers';
 
 const storage = new Storage();
 let query: string | null;
-let port: browser.runtime.Port;
+let port: browser.Runtime.Port;
 let notes: ResultNoteApi[];
 let loading = false;
 
@@ -21,13 +23,14 @@ const waitForLoading = () => new Promise(resolve => {
 browser.tabs.onActivated.addListener(async (tab) => {
     loading = true;
     browser.tabs.get(tab.tabId).then(async (tabDetails) => {
-        const params = new URLSearchParams(tabDetails.url);
-        const tabQuery = params.get('q');
+        // Return early if query isn't set
+        if(!tabDetails?.url) return;
+        const tabQuery = new URL(tabDetails.url).searchParams.get('q');
         console.info(`Received query: ${tabQuery} from tab change, loading suggestions`);
         query = tabQuery;
         notes = await getNotes();
-        loading = false;
     })
+    loading = false;
 })
 
 /**
@@ -43,9 +46,9 @@ browser.runtime.onMessage.addListener(async (message: {value: any, sender?: stri
             query = message.value;
             // Preload badge prior to popup initialization & load notes for query
             notes = await getNotes();
-            loading = false;
         }
     }
+    loading = false;
 })
 
 /**
@@ -60,7 +63,7 @@ browser.storage.onChanged.addListener(async (change) => {
     }
 })
 
-const portFn = async (popupPort: browser.runtime.Port) => {
+const portFn = async (popupPort: browser.Runtime.Port) => {
     port = popupPort;
     await waitForLoading();
     popupPort.postMessage({"query": query, "notes": notes});
@@ -79,12 +82,26 @@ async function getNotes() {
         .sort((a, b) => b.score - a.score)
         .slice(0, Number(settings.notesShown));
 
-        // Set badge number
-        browser.browserAction.setBadgeText({ text: notesFiltered.length !== 0 ? notesFiltered.length.toString() : '' });
+        setBadge({ text: notesFiltered.length !== 0 ? notesFiltered.length.toString() : '' });
 
         return notesFiltered;
     }
     // Reset badge number
-    else browser.browserAction.setBadgeText({ text: '' });
+    else setBadge({ text: '' });
     return [];
+}
+
+/**
+ * Use action or browserAction depending on manifest
+ * @param textDetails 
+ */
+function setBadge(textDetails: browser.Action.SetBadgeTextDetailsType) {
+    if(isManifestV3()){
+        // Set badge number
+        browser.action.setBadgeText(textDetails);
+    }
+    else {
+        // Set badge number
+        browser.browserAction.setBadgeText(textDetails);
+    }
 }
