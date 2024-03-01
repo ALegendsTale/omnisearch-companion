@@ -2,7 +2,7 @@
 
 This extension displays relevant notes using the powerful [Omnisearch](https://github.com/scambier/obsidian-omnisearch) plugin for Obsidian from your browser. You can search your Obsidian vault while searching the web and quickly open the results in Obsidian.
 
-![](OC_Demo.png) ![](OC_Settings_Demo.png)
+![](demo.png) ![](demo-settings.png)
 
 ## Permissions Notice
 #### Tabs

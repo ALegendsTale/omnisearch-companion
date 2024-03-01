@@ -132,5 +132,7 @@ dist
 .vscode
 
 web-ext-artifacts/*
+web-ext-firefox-artifacts/*
+web-ext-chrome-artifacts/*
 
 dist-prod
