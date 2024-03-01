@@ -3,7 +3,7 @@
 	"version": "1.2.0",
 	"description": "Display relevant search results from the Obsidian Omnisearch plugin.",
 	"icons": {
-		"300": "../../icons/Icon.png"
+		"300": "../../icons/icon.png"
 	},
 	"permissions": [
 		"tabs",
@@ -21,7 +21,7 @@
 		}
 	],
 	"browser_action": {
-		"default_icon": "../../icons/Icon.png",
+		"default_icon": "../../icons/icon.png",
 		"default_title": "Omnisearch Companion",
 		"default_popup": "../popup/popup.html"
 	},
