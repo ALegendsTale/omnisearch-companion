@@ -10,16 +10,6 @@
 		"storage"
 	],
 	"manifest_version": 2,
-	"content_scripts": [
-		{
-			"matches": [
-				"<all_urls>"
-			],
-			"js": [
-				"../content_scripts/cScript.ts"
-			]
-		}
-	],
 	"browser_action": {
 		"default_icon": "../../icons/icon.png",
 		"default_title": "Omnisearch Companion",

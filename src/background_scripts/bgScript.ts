@@ -3,9 +3,7 @@ import Storage from "../utils/storage";
 import { isManifestV3 } from '../utils/helpers';
 
 const storage = new Storage();
-let query: string | null;
 let port: browser.Runtime.Port;
-let notes: ResultNoteApi[];
 let loading = false;
 
 const waitForLoading = () => new Promise(resolve => {
@@ -18,6 +16,23 @@ const waitForLoading = () => new Promise(resolve => {
 });
 
 /**
+ * Retrieve query when tab url changes & reload notes
+ */
+browser.tabs.onUpdated.addListener(async (tabId, changedInfo, tab) => {
+    loading = true;
+    if(changedInfo.url && tab.active){
+        if(!tab.url) return;
+        const query = new URL(tab.url).searchParams.get('q');
+        console.info(`Received query: ${query} from tab url update, loading suggestions`);
+        await browser.storage.local.set({ query });
+        // Get notes after query is set
+        let notes = JSON.stringify(await getNotes());
+        await browser.storage.local.set({ notes });
+    }
+    loading = false;
+})
+
+/**
  * Retrieve query when tab changes & reload notes
  */
 browser.tabs.onActivated.addListener(async (tab) => {
@@ -25,54 +40,45 @@ browser.tabs.onActivated.addListener(async (tab) => {
     browser.tabs.get(tab.tabId).then(async (tabDetails) => {
         // Return early if query isn't set
         if(!tabDetails?.url) return;
-        const tabQuery = new URL(tabDetails.url).searchParams.get('q');
-        console.info(`Received query: ${tabQuery} from tab change, loading suggestions`);
-        query = tabQuery;
-        notes = await getNotes();
+        const query = new URL(tabDetails.url).searchParams.get('q');
+        console.info(`Received query: ${query} from tab change, loading suggestions`);
+        await browser.storage.local.set({ query });
+        // Get notes after query is set
+        let notes = JSON.stringify(await getNotes());
+        await browser.storage.local.set({ notes });
     })
-    loading = false;
-})
-
-/**
- * Receives query from cScript & loads notes
- */
-browser.runtime.onMessage.addListener(async (message: {value: any, sender?: string}, sender) => {
-    loading = true;
-    if(message.sender === 'cScript'){
-        let activeTab = await browser.tabs.query({ active: true, currentWindow: true });
-        // Make sure the content script sending the query is the active tab
-        if(activeTab[0].id === sender.tab?.id){
-            console.info(`Received query: ${message.value} from cScript, loading suggestions`);
-            query = message.value;
-            // Preload badge prior to popup initialization & load notes for query
-            notes = await getNotes();
-        }
-    }
     loading = false;
 })
 
 /**
  * Reload after settings changes
  */
-browser.storage.onChanged.addListener(async (change) => {
-    console.info('Storage changed, reloading suggestions');
-    // Load notes after settings change
-    notes = await getNotes();
-    if(query && port){
-        port.postMessage({"query": query, "notes": notes});
+browser.storage.onChanged.addListener(async (change, area) => {
+    if(area === 'sync'){
+        const { query }: { query?: string } = await browser.storage.local.get([ "query" ]);
+        console.info('Storage changed, reloading suggestions');
+        // Load notes after settings change
+        let notes = await getNotes();
+        await browser.storage.local.set({ notes: JSON.stringify(notes) });
+        if(query && port){
+            port.postMessage({"query": query, "notes": notes});
+        }
     }
 })
 
 const portFn = async (popupPort: browser.Runtime.Port) => {
+    const { query, notes }: { query?: string, notes?: string } = await browser.storage.local.get([ "query", "notes" ]);
+    if(!notes) return;
     port = popupPort;
     await waitForLoading();
-    popupPort.postMessage({"query": query, "notes": notes});
+    port.postMessage({"query": query, "notes": JSON.parse(notes)});
 }
 
 if(browser.runtime.onConnect.hasListener(portFn)) browser.runtime.onConnect.removeListener(portFn);
 browser.runtime.onConnect.addListener(portFn);
 
 async function getNotes() {
+    const { query }: { query?: string } = await browser.storage.local.get([ "query" ]);
     if(query != null){
         const settings = await storage.getSettingsStorage();
         const port = settings.port;

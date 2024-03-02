@@ -12,6 +12,11 @@
     --highlight: var(--purple);
 }
 
+@font-face {
+    font-family: Inter;
+    src: url("../fonts/Inter-VariableFont_slnt\,wght.ttf");
+}
+
 body {
     background-color: var(--background);
     color: var(--text);
