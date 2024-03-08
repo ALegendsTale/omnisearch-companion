@@ -79,10 +79,20 @@ browser.runtime.onConnect.addListener(portFn);
 
 async function getNotes() {
     const { query }: { query?: string } = await browser.storage.local.get([ "query" ]);
+    const settings = await storage.getSettingsStorage();
     if(query != null){
-        const settings = await storage.getSettingsStorage();
-        const port = settings.port;
-        const response = await fetch(`http://localhost:${port}/search?q=${query}`);
+        const response = await fetch(`http://localhost:${settings.port}/search?q=${query}`).catch(async (error) => {
+            const errorMessage = 'Please ensure Obsidian is open, the Omnisearch HTTP server is enabled, and that the port in settings matches.';
+            await browser.notifications.create('network-error', { title: 'Omnisearch Companion - Failed to connect', message: errorMessage, type: 'basic' });
+            console.error(errorMessage);
+            return null;
+        });
+        // If no response, exit & reset badge
+        if(!response) {
+            // Reset badge number
+            setBadge({ text: '' });
+            return [];
+        }
         const notes: ResultNoteApi[] = await response.json()
         const notesFiltered = notes.filter((note) => note.score > Number(settings.notesScore))
         .sort((a, b) => b.score - a.score)
@@ -93,7 +103,7 @@ async function getNotes() {
         return notesFiltered;
     }
     // Reset badge number
-    else setBadge({ text: '' });
+    setBadge({ text: '' });
     return [];
 }
 

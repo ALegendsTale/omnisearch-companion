@@ -17,12 +17,8 @@ The storage permission is required to store settings for the plugin to function.
 - Enjoy passively searching your vault!
 
 ## Build from Source
-- npm install
-- npm run build
-- npm run start
+Firefox
+- npm export-ff
 
-### Alternatively
-
-- npm install
-- npm run parcel-start
-- install extension temporarily at `about:debugging#/runtime/this-firefox`
+Chrome
+- npm export-cr

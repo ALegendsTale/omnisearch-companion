@@ -35,11 +35,9 @@ export class NoteItem extends HTMLElement {
         this.listItem = shadow.appendChild(document.createElement('li'));
         this.anchor = this.listItem.appendChild(document.createElement('a'));
         this.anchor.innerText = note.basename;
-        this.anchor.appendChild(document.createElement('slot'));
         this.anchor.addEventListener('click', async (e) => {
-            const [activeTab] = await browser.tabs.query({active: true, currentWindow:true});
             // Open deep-link directly without creating tab / window
-            browser.tabs.update(activeTab.id, { url: `obsidian://open?vault=ObsidianVault&file=${note.path}` });
+            browser.tabs.update({ url: `obsidian://open?vault=ObsidianVault&file=${note.path}` });
             // Close popup window
             window.close();
         })
