@@ -9,6 +9,8 @@ This extension displays relevant notes using the powerful [Omnisearch](https://g
 The tabs permission is required to retrieve URL queries which Omnisearch uses to determine which notes to fetch.
 #### Storage
 The storage permission is required to store settings for the plugin to function.
+#### Notifications
+The notifications permission is required to display important messages like errors.
 
 ## Installation
 
