@@ -1,6 +1,6 @@
 {
 	"name": "Omnisearch Companion",
-	"version": "1.3.0",
+	"version": "1.4.0",
 	"description": "Display relevant search results from the Obsidian Omnisearch plugin.",
 	"icons": {
 		"300": "../../icons/icon.png"
