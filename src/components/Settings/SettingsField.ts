@@ -88,10 +88,18 @@ export class SettingsField extends HTMLElement {
         this.description.className = 'setting-description'
         this.description.innerText = fieldDescription;
     }
+    
+    /**
+     * Checks if `fieldValue` is equal to the field's default value.
+     */
     public isDefaultValue(fieldValue: any) {
         if(fieldValue === this.getDefaultValue()) return true;
         else return false;
     }
+
+    /**
+     * Retrieves the default value of the current `SettingsField` from storage
+     */
     public getDefaultValue() {
         const fieldNameCamel = this.fieldName.charAt(0).toLowerCase() + this.fieldName.slice(1).replace(' ', '');
         return this.storage.defaultValues[fieldNameCamel];

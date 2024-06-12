@@ -80,13 +80,48 @@ body {
     color: var(--highlight);
 }
 
-#query-text {
+#query-container {
     display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+    max-width: 360px;
+    gap: 6px;
+}
+
+#query-label {
     color: var(--light-purple);
     font-weight: bold;
     font-family: Inter;
     font-size: 1.25rem;
-    margin: 5%;
+    margin: 0;
+    padding: 0;
+}
+
+#query-container > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+#query-favicon { 
+    display: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 314px;
+}
+
+#query-text {
+    font-weight: 400;
+    font-family: Inter;
+    font-size: 1rem;
+    margin: 0;
+    padding: 0;
+    /* Leave room for left & right margins + favicon */
+    max-width: 340px;
+    text-wrap: nowrap;
 }
 
 #omnisearch-content {

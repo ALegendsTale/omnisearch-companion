@@ -1,15 +1,15 @@
 import { createElement, Sun, X as XIcon } from "lucide";
-import Storage, { SettingsType } from "../../utils/storage";
+import Storage, { SearchType, SettingsType } from "../../utils/storage";
 import { SettingsInput } from "./SettingsInput";
 import _ from 'lodash'
 import { Header } from "../Header";
 import { SettingsButton } from "./SettingsButton";
+import { SettingsDropdown } from "./SettingsDropdown";
 
+// Define custom elements
 if(customElements.get('settings-input') == undefined) customElements.define('settings-input', SettingsInput);
 if(customElements.get('settings-button') == undefined) customElements.define('settings-button', SettingsButton);
-
-const xIcon = createElement(XIcon);
-xIcon.style.stroke = 'black';
+if(customElements.get('settings-dropdown') == undefined) customElements.define('settings-dropdown', SettingsDropdown);
 
 const template = document.createElement('template');
 template.innerHTML = `<style>
@@ -79,18 +79,19 @@ export class Settings extends HTMLElement {
     port: SettingsInput
     notesShown: SettingsInput
     notesScore: SettingsInput
+    searchType: SettingsDropdown
     theme: SettingsButton
     storage: Storage
     settings: SettingsType
 
     constructor(display?: boolean){
         super();
-        // Storage
         this.storage = new Storage();
         this.settings = {
             port: '',
             notesShown: '',
             notesScore: '',
+            searchType: 'Both',
             theme: 'light',
         }
         // Create shadow DOM
@@ -111,33 +112,43 @@ export class Settings extends HTMLElement {
         // Form items
         this.form = this.contentContainer.appendChild(document.createElement('form'));
         this.form.acceptCharset = 'UTF-8'
-        // Port settings
+
+        /* Create Settings */
+
         this.port = this.form.appendChild(new SettingsInput('Port', 'Set this to the same port that your Omnisearch server is set to.', 
         async () => {
             await this.saveSettings();
         }));
-        // Notes shown settings
+
         this.notesShown = this.form.appendChild(new SettingsInput('Notes Shown', 'The number of notes shown per query.', 
         async () => {
             await this.saveSettings();
         }));
-        // Notes score settings
+
         this.notesScore = this.form.appendChild(new SettingsInput('Notes Score', 'Filter notes by how closely they relate to your query. Score ranges from 0 - 100.', 
         async () => {
             await this.saveSettings();
         }));
+
+        this.searchType = this.form.appendChild(new SettingsDropdown('Search Type', 'Query: Searches notes from search engine matches.\nURL: Searches notes from full-text URL.', ['Query', 'URL', 'Both'],
+        async () => {
+            await this.saveSettings();
+        }));
+
         this.theme = this.form.appendChild(new SettingsButton('Theme', 'Change Omnisearch Companion appearance.', Sun,
         async () => {
             await this.saveSettings();
         }));
 
-        // Close button
         this.heading.button.title = 'Close settings and save';
+        // Save settings & close on click
         this.heading.button.addEventListener('click', async (e) => {
             e.preventDefault();
             await this.saveSettings();
             this.toggleDisplay();
         })
+
+        /* Display settings window in popup or embded into browser default settings */
 
         // Show settings as an embed
         if(display){
@@ -166,11 +177,15 @@ export class Settings extends HTMLElement {
         this.style.display = this.style.display === 'none' ? 'flex' : 'none';
     }
 
+    /**
+     * Load settings from storage and restore values to `SettingsFields`
+     */
     private async loadSettings() {
         this.settings = await this.storage.getSettingsStorage();
 
+        /* Synthetic events to refresh SettingsComponent styles */
+
         this.port.input.value = this.settings.port;
-        // Create synthetic event
         this.port.input.dispatchEvent(new Event('input', { bubbles: true }));
 
         this.notesShown.input.value = this.settings.notesShown;
@@ -179,15 +194,22 @@ export class Settings extends HTMLElement {
         this.notesScore.input.value = this.settings.notesScore;
         this.notesScore.input.dispatchEvent(new Event('input', { bubbles: true }));
 
+        this.searchType.value = this.settings.searchType;
+        this.searchType.dropdown.dispatchEvent(new Event('input', { bubbles: true }));
+
         this.theme.value = this.settings.theme;
         this.theme.button.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
+    /**
+     * Save settings to storage
+     */
     private async saveSettings() {
         const settings: SettingsType = {
             port: this.port.input.value,
             notesShown: this.notesShown.input.value,
             notesScore: this.notesScore.input.value,
+            searchType: this.searchType.value as SearchType,
             theme: this.theme.value
         }
         // Only save if settings have been changed

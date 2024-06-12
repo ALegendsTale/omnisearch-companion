@@ -4,9 +4,15 @@ export type SettingsType = {
     port: string
     notesShown: string
     notesScore: string
+    searchType: SearchType
     theme: ThemeType
     [key: string]: any
 }
+
+export type SearchType = 
+| 'Query'
+| 'URL'
+| 'Both'
 
 export type ThemeType = 
 | 'light'
@@ -19,6 +25,7 @@ export default class Storage {
             port: '51361',
             notesShown: '25',
             notesScore: '10',
+            searchType: 'Both',
             theme: 'light'
         }
     }
@@ -34,6 +41,7 @@ export default class Storage {
             port: settings?.port || this.defaultValues.port,
             notesShown: settings?.notesShown || this.defaultValues.notesShown,
             notesScore: settings?.notesScore || this.defaultValues.notesScore,
+            searchType: settings?.searchType || this.defaultValues.searchType,
             theme: settings?.theme || this.defaultValues.theme
         } as SettingsType
     }

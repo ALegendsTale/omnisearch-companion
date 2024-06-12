@@ -1,4 +1,4 @@
-import Storage, { ThemeType } from "../../utils/storage";
+import { ThemeType } from "../../utils/storage";
 import { createElement, IconNode, Moon, Sun } from "lucide";
 import { SettingsField } from "./SettingsField";
 
@@ -29,9 +29,12 @@ export class SettingsButton extends SettingsField {
         this.icon = this.button.appendChild(createElement(icon));
         this.button.addEventListener('click', (e) => {
             this.value = this.value === 'light' ? 'dark' : 'light';
+            // Changes styles & icon
             this.setStyle();
+            // Save value
             onSubmit();
         })
+        // Triggered on first load & on synthetic events
         this.button.addEventListener('input', (e) => {
             this.setStyle();
         })
@@ -39,12 +42,17 @@ export class SettingsButton extends SettingsField {
     async connectedCallback() {
 
     }
+    /**
+     * Sets styles of button & toggles which icon to use
+     */
     setStyle() {
         document.documentElement.style.setProperty('--background', this.value === 'light' ? 'var(--grey)' : 'var(--dark-2)');
         document.documentElement.style.setProperty('--text', this.value === 'light' ? 'var(--dark)' : 'var(--off-white)');
         document.documentElement.style.setProperty('--text-box', this.value === 'light' ? 'var(--off-white)' : 'var(--dark)');
         document.documentElement.style.setProperty('--highlight', this.value === 'light' ? 'var(--purple)' : 'var(--light-purple)');
+        // Remove icon
         this.button.removeChild(this.icon);
+        // Add new icon
         this.icon = this.button.appendChild(createElement(this.value === 'light' ? Moon : Sun));
     }
 }
