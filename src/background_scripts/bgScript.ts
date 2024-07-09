@@ -20,13 +20,27 @@ const waitForLoading = () => new Promise(resolve => {
 });
 
 /**
+ * Removes search parameters from URL
+ */
+function getURLWithoutSearchParams(url: string | undefined) {
+    if(!url) return;
+    const urlObj = new URL(url);
+    urlObj.search= '';
+    return urlObj.toString();
+}
+
+/**
  * Retrieve query when tab url changes & reload notes
  */
 browser.tabs.onUpdated.addListener(async (tabId, changedInfo, tab) => {
+    // Ensure the URL was updated & the tab is active
     if(changedInfo.url && tab.active){
-        tabCached = tab;
-        await loadNotes(tab);
-        console.info(`Tab updated, loading suggestions`);
+        // Only load on first update, or if tab URL changed
+        if(tabCached === undefined || getURLWithoutSearchParams(tabCached?.url) !== getURLWithoutSearchParams(tab?.url)) {
+            tabCached = tab;
+            await loadNotes(tab);
+            console.info(`Tab updated, loading suggestions`);
+        }
     }
 })
 
@@ -91,6 +105,9 @@ async function loadNotes (tab: browser.Tabs.Tab) {
     loading = true;
     // Return early if query isn't set
     if(!tab?.url) return;
+
+    // Reset badge before loading
+    setBadge({ text: '' });
 
     const { searchType } = await storage.getSettingsStorage();
     const url = new URL(tab.url);
