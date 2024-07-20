@@ -22,21 +22,27 @@ const waitForLoading = () => new Promise(resolve => {
 /**
  * Removes search parameters from URL
  */
-function getURLWithoutSearchParams(url: string | undefined) {
+function splitURLSearchParams(url: string | undefined) {
     if(!url) return;
     const urlObj = new URL(url);
-    urlObj.search= '';
-    return urlObj.toString();
+    const search = urlObj.search;
+    urlObj.search = '';
+    return {url: urlObj.toString(), search};
 }
 
 /**
  * Retrieve query when tab url changes & reload notes
  */
 browser.tabs.onUpdated.addListener(async (tabId, changedInfo, tab) => {
+    // Return early if no URL
+    if(!tab?.url) return;
+    // Always defined because of above check
+    const tabURL = splitURLSearchParams(tab.url)!;
+    const tabCachedURL = splitURLSearchParams(tabCached?.url);
     // Ensure the URL was updated & the tab is active
     if(changedInfo.url && tab.active){
-        // Only load on first update, or if tab URL changed
-        if(tabCached === undefined || getURLWithoutSearchParams(tabCached?.url) !== getURLWithoutSearchParams(tab?.url)) {
+        // Only load on first update, or if tab URL / search changed
+        if(tabCached === undefined || tabURL.url !== tabCachedURL?.url || tabURL.search !== tabCachedURL?.search) {
             tabCached = tab;
             await loadNotes(tab);
             console.info(`Tab updated, loading suggestions`);
