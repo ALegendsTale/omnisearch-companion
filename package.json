@@ -1,6 +1,6 @@
 {
   "name": "omnisearch-companion",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "scripts": {
     "clean": "rimraf dist",
     "clean-prod": "rimraf dist-prod",
