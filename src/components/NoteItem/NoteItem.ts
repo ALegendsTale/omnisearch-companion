@@ -37,7 +37,7 @@ export class NoteItem extends HTMLElement {
         this.anchor.innerText = note.basename;
         this.anchor.addEventListener('click', async (e) => {
             // Open deep-link directly without creating tab / window
-            browser.tabs.update({ url: `obsidian://open?vault=ObsidianVault&file=${note.path}` });
+            browser.tabs.update({ url: `obsidian://open?vault=${note.vault}&file=${note.path}` });
             // Close popup window
             window.close();
         })
