@@ -147,4 +147,5 @@ body {
     font-size: 1rem;
     color: var(--text);
     text-align: center;
+	 max-width: 400px;
 }

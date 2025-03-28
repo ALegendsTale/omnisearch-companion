@@ -165,18 +165,13 @@ async function getNotes() {
     // Skip fetch if query is null or undefined
     if(query != null){
         // If URL, encode before passing to Omnisearch
-        const response = await fetch(`http://localhost:${settings.port}/search?q=${URL.canParse(query) ? encodeURIComponent(query) : query}`).catch(async (error) => {
-            const errorMessage = 'Please ensure Obsidian is open, the Omnisearch HTTP server is enabled, and that the port in settings matches.';
-            // Create notification to notify user that fetch failed
-            await browser.notifications.create('network-error', { title: 'Omnisearch Companion - Failed to connect', message: errorMessage, type: 'basic' });
-            console.error(errorMessage);
-            return null;
-        });
-        // If no response, exit & reset badge
+        const response = await fetch(`http://localhost:${settings.port}/search?q=${URL.canParse(query) ? encodeURIComponent(query) : query}`).catch(() => null);
+        // If no response, exit
         if(!response) {
-            // Reset badge number
-            setBadge({ text: '' });
-            return [];
+				// Set error badge
+				setBadge({ text: '🛇' });
+				console.error('Please ensure Obsidian is open, the Omnisearch HTTP server is enabled, and that the port in settings matches.');
+            return null;
         }
         // Get notes from fetch response
         const notes: ResultNoteApi[] = await response.json()

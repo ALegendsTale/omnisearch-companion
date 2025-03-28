@@ -7,6 +7,8 @@ import { ChevronDown, ChevronUp, createElement } from "lucide";
 import sanitize from "sanitize-html";
 import { getShortString } from '../utils/helpers';
 
+type Notes = { query: string, notes: ResultNoteApi[] };
+
 // Define custom elements
 if(customElements.get('note-item') == undefined) customElements.define('note-item', NoteItem);
 if(customElements.get('settings-component') == undefined) customElements.define('settings-component', Settings);
@@ -16,7 +18,7 @@ if(customElements.get('header-component') == undefined) customElements.define('h
 let popupPort = browser.runtime.connect({ name: 'popup' });
 if(popupPort.onMessage.hasListener(createNotes)) popupPort.onMessage.removeListener(createNotes);
 // Create notes from received message
-popupPort.onMessage.addListener((res) => createNotes(res));
+popupPort.onMessage.addListener((res: Notes) => createNotes(res));
 
 // Create new markdown > HTML converter object
 const showdown = new Showdown.Converter();
@@ -47,9 +49,7 @@ function setButtonState() {
  * Creates & replaces notes in the Omnisearch Content window
  * @param res `query` & `notes` to create notes from
  */
-function createNotes(res: object) {
-    let { query, notes } = res as {query: string, notes: ResultNoteApi[]};
-
+function createNotes({ query, notes }: Notes) {
     // Checks if query is a URL
     const isQueryURL = URL.canParse(query);
     // Checks if URL has a pathname
@@ -77,12 +77,15 @@ function createNotes(res: object) {
     if(contentDiv) contentDiv.replaceChildren(createTextEl('Loading...'));
     // Return early if notes is null
     if(!notes){
-        if(contentDiv) contentDiv.replaceChildren(createTextEl('Nothing here yet :('));
-        return;
+		if(contentDiv) contentDiv.replaceChildren(
+			createTextEl('Failed to connect to Omnisearch.'), 
+			createTextEl('Please ensure Obsidian is open, the Omnisearch HTTP server is enabled, and that the port in settings matches.')
+		);
+		return;
     }
     // Return early if there aren't any notes
     if(notes.length < 1){
-        if(contentDiv) contentDiv.replaceChildren(createTextEl('No notes match this query'));
+        if(contentDiv) contentDiv.replaceChildren(createTextEl('No notes match this query.'));
         return;
     }
     // Load notes into container

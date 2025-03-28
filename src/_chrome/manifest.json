@@ -7,8 +7,7 @@
 	},
 	"permissions": [
 		"tabs",
-		"storage",
-		"notifications"
+		"storage"
 	],
 	"manifest_version": 3,
 	"action": {

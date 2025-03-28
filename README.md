@@ -14,10 +14,6 @@ The tabs permission is required to retrieve URL queries which Omnisearch uses to
 
 The storage permission is required to store settings for user customization and plugin function.
 
-### Notifications
-
-The notifications permission is required to display important messages like errors.
-
 ## Installation
 
 The plugin is available for both Firefox and Chrome browsers.
