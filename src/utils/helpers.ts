@@ -1,5 +1,18 @@
 import browser from 'webextension-polyfill';
 
+// Extract keys of a certain type
+export type KeysOfType<T, U> = {
+	[K in keyof T]: T[K] extends U ? K : never;
+}[keyof T];
+
+// Checks if T is exactly of type U
+type IsExactType<T, U> = [T] extends [U] ? ([U] extends [T] ? true : false) : false;
+
+// Extract keys of primitive type
+export type KeysOfPrimitiveType<T, U> = {
+	[K in keyof T]: IsExactType<T[K], U> extends true ? K : never;
+}[keyof T]
+
 /**
  * Checks if the extension is Manifest V3
  */

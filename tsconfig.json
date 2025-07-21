@@ -1,15 +1,20 @@
 {
-  "compilerOptions": {
-    "outDir": "./dist/",
-    "sourceMap": true,
-    "strict": true,
-    "noImplicitReturns": true,
-    "noImplicitAny": true,
-    "module": "es6",
-    "moduleResolution": "node",
-    "target": "es2021",
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true
-  },
-  "include": ["./src/**/*"],
+	"compilerOptions": {
+		"outDir": "./dist/",
+		"sourceMap": true,
+		"strict": true,
+		"noImplicitReturns": true,
+		"noImplicitAny": true,
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"target": "es2021",
+		"allowJs": true,
+
+		"noImplicitOverride": true,
+
+		/* LIT */
+		"experimentalDecorators": true,
+		"useDefineForClassFields": false
+	},
+	"include": ["./src/**/*"]
 }

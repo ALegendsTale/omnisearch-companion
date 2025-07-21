@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 import Storage from '../utils/storage';
 import { splitURLSearchParams, browserAction, isCommonProtocol } from '../utils/helpers';
+import { ResultNoteApi } from '../types/OmnisearchTypes';
 
 type Tab = browser.Tabs.Tab;
 
@@ -24,13 +25,15 @@ const waitForLoading = () =>
 	});
 
 /**
- * Add context menu item
+ * Create context menu item on load
  */
-browser.contextMenus.create({
-	id: 'omnisearchcompanion',
-	title: 'Omnisearch Companion',
-	contexts: ['selection', 'tab', 'link'],
-});
+browser.runtime.onInstalled.addListener(() => {
+	browser.contextMenus.create({
+		id: 'omnisearchcompanion',
+		title: 'Omnisearch Companion',
+		contexts: ['selection', 'link'],
+	});
+})
 
 /**
  * Get query from user interaction with context menu
@@ -202,9 +205,9 @@ async function getNotes() {
 		const notes: ResultNoteApi[] = await response.json();
 		// Filter notes by user defined score
 		const notesFiltered = notes
-			.filter((note) => note.score > Number(settings.notesScore))
+			.filter((note) => note.score > +settings.notesScore)
 			.sort((a, b) => b.score - a.score)
-			.slice(0, Number(settings.notesShown));
+			.slice(0, +settings.notesShown);
 
 		// Set badge to the number of notes fetched
 		browserAction.setBadgeText({ text: notesFiltered.length !== 0 ? notesFiltered.length.toString() : '' });

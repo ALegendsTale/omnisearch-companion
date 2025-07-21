@@ -1,28 +1,10 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" href="popup.css" />
-    </head>
-    <body>
-        <div id="popup-content">
-            <header-component></header-component>
-            <div id="query-container">
-                <h3 id="query-label">Search Query: </h3>
-                <div id="query-item">
-                    <img id="query-favicon">
-                    <h3 id="query-text"></h3>
-                </div>
-            </div>
-            <ol id="omnisearch-content">
-                <p>Loading...</p>
-            </ol>
-            <div id="preview-container">
-                <button id="preview-button"></button>
-                <div id="preview-content">
-                    <!-- content -->
-                </div>
-            </div>
-        </div>
-        <script src="popup.ts" type="module"></script>
-    </body>
+	<head>
+		<link rel="stylesheet" href="popup.css" />
+		<script src="popup.ts" type="module"></script>
+	</head>
+	<body>
+		<popup-component></popup-component>
+	</body>
 </html>

@@ -1,4 +1,4 @@
-type OmnisearchApi = {
+export type OmnisearchApi = {
     // Returns a promise that will contain the same results as the Vault modal
     search: (query: string) => Promise<ResultNoteApi[]>,
     // Refreshes the index
@@ -9,7 +9,7 @@ type OmnisearchApi = {
     unregisterOnIndexed: (callback: () => void) => void,
 }
   
-type ResultNoteApi = {
+export type ResultNoteApi = {
     score: number
     vault: string
     path: string
@@ -19,7 +19,7 @@ type ResultNoteApi = {
     excerpt: string
 }
   
-type SearchMatchApi = {
+export type SearchMatchApi = {
     match: string
     offset: number
 }
