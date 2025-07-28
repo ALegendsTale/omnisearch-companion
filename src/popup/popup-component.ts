@@ -13,6 +13,7 @@ import { ResultNoteApi } from '../types/OmnisearchTypes';
 
 import { SettingsComponent } from '../components/Settings/settings-component';
 import { styleMap } from 'lit/directives/style-map.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 type Notes = { query: string, notes: ResultNoteApi[] };
 
@@ -265,7 +266,7 @@ export class PopupComponent extends LitElement {
 					${this.previewOpen ? chevronDown : chevronUp}
 				</button>
 				<div style=${styleMap(previewStyles)}>
-					${this.previewContent}
+					${unsafeHTML(this.previewContent)}
 				</div>
 			</div>
 			<settings-component></settings-component>
