@@ -1,19 +1,19 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
+import { styleMap } from 'lit/directives/style-map.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import browser from 'webextension-polyfill';
 import Showdown from "showdown";
 import { ChevronDown, ChevronUp, createElement } from "lucide";
 import sanitize from "sanitize-html";
 import { getShortString } from '../utils/helpers';
+import { ResultNoteApi } from '../types/OmnisearchTypes';
+import { SettingsComponent } from '../components/Settings/settings-component';
+
 import '../components/header-component';
 import '../components/Settings/settings-component';
 import '../components/note-item';
-import { ResultNoteApi } from '../types/OmnisearchTypes';
-
-import { SettingsComponent } from '../components/Settings/settings-component';
-import { styleMap } from 'lit/directives/style-map.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 type Notes = { query: string, notes: ResultNoteApi[] };
 

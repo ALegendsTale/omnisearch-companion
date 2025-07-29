@@ -4,6 +4,7 @@ import Storage, { SettingsType } from "../../utils/storage";
 import _ from 'lodash'
 import { createElement, Moon, Sun } from "lucide";
 
+import '../header-component';
 import './settings-button';
 import './settings-dropdown';
 import './settings-input';

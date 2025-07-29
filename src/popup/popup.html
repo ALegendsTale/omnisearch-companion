@@ -1,7 +1,41 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link rel="stylesheet" href="popup.css" />
+		<style>
+			:root {
+				color-scheme: light;
+
+				--grey: #e3e5e8;
+				--dark: #2e3338;
+				--dark-2: #1e1e1e;
+				--purple: #6c31e3;
+				--light-purple: #a78bfa;
+				--off-white: #f5f6f8;
+
+				--background: light-dark(var(--grey), var(--dark-2));
+				--text: light-dark(var(--dark), var(--off-white));
+				--text-box: light-dark(var(--off-white), var(--dark));
+				--highlight: light-dark(var(--purple), var(--light-purple));
+			}
+
+			@font-face {
+				font-family: Inter;
+				src: url('../fonts/Inter-VariableFont_slnt\,wght.ttf');
+			}
+
+			body {
+				background-color: var(--background);
+				color: var(--text);
+				position: relative;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				padding: 0;
+				margin: 0;
+				min-width: 400px;
+				min-height: 500px;
+			}
+		</style>
 		<script src="popup.ts" type="module"></script>
 	</head>
 	<body>
