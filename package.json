@@ -1,1 +1,39 @@
-{"name":"omnisearch-companion","version":"2.0.0","scripts":{"build":"rimraf dist && npm run build-ff && npm run build-cr","start-ff":"npm run build-ff && web-ext run -s dist/firefox --devtools","start-cr":"npm run build-cr && web-ext run -s dist/chrome --devtools --target chromium","export":"npm run export-ff && npm run export-cr","version":"node version-bump.mjs && git add src/_firefox/manifest.json && git add src/_chrome/manifest.json","preexport":"rimraf dist-prod && npm run prod-ff && npm run prod-cr","build-ff":"parcel build src/_firefox/manifest.json --dist-dir dist/firefox","prod-ff":"parcel build src/_firefox/manifest.json --no-source-maps --dist-dir dist-prod/firefox","export-ff":"web-ext build -s dist-prod/firefox -a web-ext-firefox-artifacts","build-cr":"parcel build src/_chrome/manifest.json --dist-dir dist/chrome","prod-cr":"parcel build src/_chrome/manifest.json --no-source-maps --dist-dir dist-prod/chrome","export-cr":"web-ext build -s dist-prod/chrome -a web-ext-chrome-artifacts"},"devDependencies":{"@parcel/config-webextension":"^2.11.0","@parcel/core":"^2.11.0","@types/lodash":"^4.14.202","@types/node":"^20.11.20","@types/sanitize-html":"^2.11.0","@types/showdown":"^2.0.6","@types/webextension-polyfill":"^0.10.7","buffer":"^6.0.3","parcel":"^2.11.0","rimraf":"^5.0.5","typescript":"^5.4.2","webextension-polyfill":"^0.12.0"},"dependencies":{"lit":"^3.3.1","lodash":"^4.17.21","lucide":"^0.335.0","sanitize-html":"^2.12.1","showdown":"^2.1.0"}}
+{
+	"name": "omnisearch-companion",
+	"version": "2.0.0",
+	"scripts": {
+		"build": "rimraf dist && npm run build-ff && npm run build-cr",
+		"start-ff": "npm run build-ff && web-ext run -s dist/firefox --devtools",
+		"start-cr": "npm run build-cr && web-ext run -s dist/chrome --devtools --target chromium",
+		"export": "npm run export-ff && npm run export-cr",
+		"version": "node version-bump.mjs && git add src/_firefox/manifest.json && git add src/_chrome/manifest.json",
+		"preexport": "rimraf dist-prod && npm run prod-ff && npm run prod-cr",
+		"build-ff": "parcel build src/_firefox/manifest.json --dist-dir dist/firefox",
+		"prod-ff": "parcel build src/_firefox/manifest.json --no-source-maps --dist-dir dist-prod/firefox",
+		"export-ff": "web-ext build -s dist-prod/firefox -a web-ext-firefox-artifacts",
+		"build-cr": "parcel build src/_chrome/manifest.json --dist-dir dist/chrome",
+		"prod-cr": "parcel build src/_chrome/manifest.json --no-source-maps --dist-dir dist-prod/chrome",
+		"export-cr": "web-ext build -s dist-prod/chrome -a web-ext-chrome-artifacts"
+	},
+	"devDependencies": {
+		"@parcel/config-webextension": "^2.11.0",
+		"@parcel/core": "^2.11.0",
+		"@types/lodash": "^4.14.202",
+		"@types/node": "^20.11.20",
+		"@types/sanitize-html": "^2.11.0",
+		"@types/showdown": "^2.0.6",
+		"@types/webextension-polyfill": "^0.10.7",
+		"buffer": "^6.0.3",
+		"parcel": "^2.11.0",
+		"rimraf": "^5.0.5",
+		"typescript": "^5.4.2",
+		"webextension-polyfill": "^0.12.0"
+	},
+	"dependencies": {
+		"lit": "^3.3.1",
+		"lodash": "^4.17.21",
+		"lucide": "^0.335.0",
+		"sanitize-html": "^2.12.1",
+		"showdown": "^2.1.0"
+	}
+}
