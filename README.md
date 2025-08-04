@@ -6,13 +6,17 @@ This extension displays relevant notes using the powerful [Omnisearch](https://g
 
 ## Permissions Notice
 
-### Tabs
+### tabs
 
-The tabs permission is required to retrieve URL queries which Omnisearch uses to determine which notes to fetch.
+Required to retrieve URL queries which Omnisearch uses to determine which notes to fetch.
 
-### Storage
+### storage
 
-The storage permission is required to store settings for user customization and plugin function.
+Required to store settings for user customization and plugin function.
+
+### contextMenus
+
+Required to add a button to the right click (context) menu for interactions with links or text selections.
 
 ## Installation
 
