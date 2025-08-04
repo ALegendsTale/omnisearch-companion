@@ -1,12 +1,12 @@
 import browser from 'webextension-polyfill';
-import Storage from '../utils/storage';
+import Storage, { Vault } from '../utils/storage';
 import { splitURLSearchParams, browserAction, isCommonProtocol } from '../utils/helpers';
 import { ResultNoteApi } from '../types/OmnisearchTypes';
 
 type Tab = browser.Tabs.Tab;
 
 const storage = new Storage();
-let port: browser.Runtime.Port;
+let port: browser.Runtime.Port | undefined;
 /* Cached tab to prevent loading more than necessary */
 let tabCached: Tab;
 let loading = false;
@@ -100,37 +100,35 @@ browser.storage.onChanged.addListener(async (change, area) => {
 		// Load notes based on the last cached tab (avoids needing `activeTab` permission)
 		await loadNotes(tabCached);
 		console.info('Storage changed, reloading suggestions');
-		await sendMessage();
+		await sendNotes();
 	}
 });
 
 /**
- * Connects to `popup` each time it is opened. Creates initial notes on open & saves port for later use.
+ * Connects to popup each time it is opened. Creates initial notes on open & saves port for later use.
  */
 const portFn = async (popupPort: browser.Runtime.Port) => {
 	// Saves initial connection port for later use
 	port = popupPort;
-	await sendMessage();
+	port.onDisconnect.addListener(() => port = undefined)
+	await sendNotes();
 };
 
-// Create & connect port to `popup`
+// Create & connect port to popup
 if (browser.runtime.onConnect.hasListener(portFn)) browser.runtime.onConnect.removeListener(portFn);
 browser.runtime.onConnect.addListener(portFn);
 
 /**
- * Sends a message to `popup.ts` to create notes
+ * Sends a message to popup to create notes
  */
-async function sendMessage() {
+async function sendNotes() {
 	// Get query / notes from local storage
-	const { query, notes }: { query?: string; notes?: string } = await browser.storage.local.get(['query', 'notes']);
-	// Returns early if notes is null
-	if (!notes) return;
+	const { query, notes, errors } = await browser.storage.local.get({ query: '', notes: '', errors: '' }) as { query: string, notes: string, errors: string };
+	
 	await waitForLoading();
+
 	// Only send message if query & port are non-null
-	if (port) {
-		// Convert notes to object before sending
-		port.postMessage({ query: query, notes: JSON.parse(notes) });
-	}
+	if (port) port.postMessage({ query: query, notes: JSON.parse(notes), errors: JSON.parse(errors) });
 }
 
 /**
@@ -157,7 +155,7 @@ async function loadNotes(_query: string | Tab) {
 		if (!tabQuery?.url) return;
 
 		const url = new URL(tabQuery.url);
-		const { searchType } = await storage.getSettingsStorage();
+		const { searchType } = await storage.getSettings();
 		// Set query based on searchType setting
 		switch (searchType) {
 			case 'Query':
@@ -165,7 +163,7 @@ async function loadNotes(_query: string | Tab) {
 			case 'URL':
 				return isCommonProtocol(url.protocol) ? url.href : null;
 			case 'Both':
-				// Set query as search paramter, otherwise set URL (which has an origin i.e. not browser native pages)
+				// Set query as search parameter, otherwise set URL (which has an origin i.e. not browser native pages)
 				return url.searchParams.get('q') || (isCommonProtocol(url.protocol) ? url.href : null);
 		}
 	}
@@ -174,10 +172,32 @@ async function loadNotes(_query: string | Tab) {
 
 	// Save query to local storage
 	await browser.storage.local.set({ query });
+
+	// Get vaults from storage
+	const vaults = await storage.getVaults();
+	// Get active vault ports
+	const activeVaults = vaults.filter((vault) => vault.active);
+
 	// Get notes after query is set
-	let notes = await getNotes();
-	// Save string notes to local storage
+	let fetchResult = Array.isArray(activeVaults) ? (await (Promise.all(activeVaults.map(async (vault) => await getNotes(query, vault))))).filter((item) => item !== null).flat() : [await getNotes(query, activeVaults)];
+
+	let notes = fetchResult.flatMap((result) => result.notes);
+	let errors = fetchResult.map((result) => result.error).filter((error) => error != undefined);
+
+	if(fetchResult.length > 0) {
+		// Set badge to the number of notes fetched
+		browserAction.setBadgeText({ text: notes.length > 0 ? notes.length.toString() : '' });
+	}
+	else {
+		// Set error badge
+		browserAction.setBadgeText({ text: '🛇' });
+		console.error('Please ensure Obsidian is open, the Omnisearch HTTP server is enabled, and that the port in settings matches.');
+	}
+
+	// Save to local storage
 	await browser.storage.local.set({ notes: JSON.stringify(notes) });
+	await browser.storage.local.set({ errors: JSON.stringify(errors) });
+
 	loading = false;
 }
 
@@ -185,36 +205,30 @@ async function loadNotes(_query: string | Tab) {
  * Fetch notes from the Omnisearch plugin http server
  * @returns Notes array
  */
-async function getNotes() {
-	// Get query from local storage
-	const { query }: { query?: string } = await browser.storage.local.get(['query']);
-	// Get settings from storage
-	const settings = await storage.getSettingsStorage();
-	// Skip fetch if query is null or undefined
-	if (query != null) {
-		// If URL, encode before passing to Omnisearch
-		const response = await fetch(`http://localhost:${settings.port}/search?q=${URL.canParse(query) ? encodeURIComponent(query) : query}`).catch(() => null);
+async function getNotes(query: string | null, vault: Vault): Promise<{ notes: ResultNoteApi[], error?: Vault }> {
+	if(query == null) return { notes: [] };
+
+	// Encode url
+	const searchQuery = URL.canParse(query) ? encodeURIComponent(query) : query;
+
+	try {
+		const response = await fetch(`http://localhost:${vault.port}/search?q=${searchQuery}`).catch(() => null);
 		// If no response, exit
-		if (!response) {
-			// Set error badge
-			browserAction.setBadgeText({ text: '🛇' });
-			console.error('Please ensure Obsidian is open, the Omnisearch HTTP server is enabled, and that the port in settings matches.');
-			return null;
-		}
+		if (!response) return { notes: [], error: vault };
 		// Get notes from fetch response
 		const notes: ResultNoteApi[] = await response.json();
+
+		const settings = await storage.getSettings();
 		// Filter notes by user defined score
 		const notesFiltered = notes
 			.filter((note) => note.score > +settings.notesScore)
 			.sort((a, b) => b.score - a.score)
 			.slice(0, +settings.notesShown);
 
-		// Set badge to the number of notes fetched
-		browserAction.setBadgeText({ text: notesFiltered.length !== 0 ? notesFiltered.length.toString() : '' });
-
-		return notesFiltered;
+		return { notes: notesFiltered };
 	}
-	// Reset badge number
-	browserAction.setBadgeText({ text: '' });
-	return [];
+	catch(e) {
+		console.warn(e);
+		return { notes: [] };
+	}
 }

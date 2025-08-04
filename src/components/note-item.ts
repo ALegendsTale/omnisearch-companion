@@ -1,24 +1,20 @@
 import { LitElement, html, css } from "lit";
 import { customElement } from "lit/decorators.js"
+import { globalStyles } from "../styles/styles";
 
 @customElement("note-item")
 export class NoteItem extends LitElement {
 	static override styles = [
+		globalStyles,
 		css`
 			:host {
 				margin-bottom: 7px;
-			}
-
-			li {
-				font-family: Inter;
 			}
 
 			a {
 				color: var(--text);
 				text-decoration: none;
 				cursor: pointer;
-				font-family: Inter;
-				font-size: 1rem;
 			}
 
 			a:hover {

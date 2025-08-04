@@ -7,19 +7,26 @@ import browser from 'webextension-polyfill';
 import Showdown from "showdown";
 import { ChevronDown, ChevronUp, createElement } from "lucide";
 import sanitize from "sanitize-html";
-import { getShortString } from '../utils/helpers';
+import { getShortString, getShortURL } from '../utils/helpers';
 import { ResultNoteApi } from '../types/OmnisearchTypes';
 import { SettingsComponent } from '../components/Settings/settings-component';
+
+import Storage, { Vault } from '../utils/storage';
 
 import '../components/header-component';
 import '../components/Settings/settings-component';
 import '../components/note-item';
+import _ from 'lodash';
+import { globalStyles } from '../styles/styles';
+import { asyncAppend } from 'lit/directives/async-append.js';
+import { classMap } from 'lit/directives/class-map.js';
 
-type Notes = { query: string, notes: ResultNoteApi[] };
+type Message = { query: string, notes: ResultNoteApi[], errors: Vault[] };
 
 @customElement('popup-component')
 export class PopupComponent extends LitElement {
 	static override styles = [
+		globalStyles,
 		css`
 			:host {
 				display: flex;
@@ -30,7 +37,7 @@ export class PopupComponent extends LitElement {
 				height: 100vh;
 			}
 
-			#preview-wrapper {
+			#preview {
 				display: flex;
 				flex-direction: column;
 				max-width: 400px;
@@ -50,8 +57,6 @@ export class PopupComponent extends LitElement {
 
 				div {
 					margin: 5%;
-					font-size: 80%;
-					font-family: Inter;
 					color: var(--text);
 					overflow-y: auto;
 					scrollbar-width: thin;
@@ -71,29 +76,37 @@ export class PopupComponent extends LitElement {
 				}
 			}
 
-			#query-wrapper {
+			#info {
 				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-				margin: 20px;
-				max-width: 360px;
-				gap: 6px;
+				justify-content: space-between;
+				width: 100%;
+				padding: 20px;
+				box-sizing: border-box;
 
-				& > h3 {
-					color: var(--light-purple);
+				h2 {
+					color: var(--highlight);
 					font-weight: bold;
-					font-family: Inter;
-					font-size: 1.25rem;
 					margin: 0;
 					padding: 0;
 				}
 
-				div {
+				h3 {
+					font-weight: 400;
+					margin: 0;
+					padding: 0;
+					text-wrap: nowrap;
+				}
+
+				#query, #vaults {
 					display: flex;
-					flex-direction: row;
-					justify-content: flex-start;
-					align-items: center;
+					flex-direction: column;
+					gap: 5px;
+				}
+
+				#query {
+					div {
+						display: flex;
+					}
 
 					img {
 						display: none;
@@ -101,16 +114,21 @@ export class PopupComponent extends LitElement {
 						height: 20px;
 						border-radius: 314px;
 					}
+				}
+
+				#vaults {
+					* {
+						text-align: right;
+					}
 
 					h3 {
-						font-weight: 400;
-						font-family: Inter;
-						font-size: 1rem;
-						margin: 0;
-						padding: 0;
-						/* Leave room for left & right margins + favicon */
-						max-width: 340px;
-						text-wrap: nowrap;
+						display: flex;
+						justify-content: flex-end;
+						gap: 5px;
+					}
+					
+					.error {
+						color: red;
 					}
 				}
 			}
@@ -120,7 +138,6 @@ export class PopupComponent extends LitElement {
 				flex-direction: column;
 				background-color: var(--text-box);
 				border-radius: 5px;
-				font-size: 1rem;
 				margin: 0 5% 5% 5%;
 				padding: 5% 5% 5% 10%;
 				flex-wrap: nowrap;
@@ -133,8 +150,6 @@ export class PopupComponent extends LitElement {
 				p {
 					display: flex;
 					align-self: center;
-					font-family: Inter;
-					font-size: 1rem;
 					color: var(--text);
 					text-align: center;
 					max-width: 400px;
@@ -143,15 +158,17 @@ export class PopupComponent extends LitElement {
 		`,
 	];
 
+	public storage: Storage = new Storage();
+
 	@property({ type: String, reflect: true })
 	query: string = '';
 	@property({ type: Array })
 	notes: ResultNoteApi[] = [];
+	@property({ type: Array })
+	errors: Vault[] = [];
 
 	@query('settings-component')
 	settings!: SettingsComponent;
-	@query('#query-wrapper')
-	queryWrapper!: HTMLDivElement;
 
 	@state()
 	previewOpen: boolean = false;
@@ -165,11 +182,11 @@ export class PopupComponent extends LitElement {
 	override connectedCallback(): void {
 		super.connectedCallback();
 
-		// Create & connect port to `bgScript`
+		// Create & connect port to bgScript
 		let popupPort = browser.runtime.connect({ name: 'popup' });
 		if(popupPort.onMessage.hasListener(this.receiveMessage)) popupPort.onMessage.removeListener(this.receiveMessage);
 		// Create notes from received message
-		popupPort.onMessage.addListener((res: Notes) => this.receiveMessage(res));
+		popupPort.onMessage.addListener((msg: Message) => this.receiveMessage(msg));
 
 		this.showdown.setFlavor('github');
 	}
@@ -177,10 +194,10 @@ export class PopupComponent extends LitElement {
 	/**
 	 * Receive message from background script
 	 */
-	receiveMessage({ query, notes }: Notes) {
-		this.query = query;
-		this.notes = notes;
-		console.log(query, notes);
+	receiveMessage(msg: Message) {
+		this.query = msg.query;
+		this.notes = msg.notes;
+		this.errors = msg.errors;
 	}
 
 	override render() {
@@ -238,25 +255,33 @@ export class PopupComponent extends LitElement {
 			<header-component
 				@buttonclicked=${() => this.settings.toggleDisplay()}
 			></header-component>
-			<div
-				id="query-wrapper"
-				title=${this.query}
-			>
-				<h3>Search Query:</h3>
-				<div>
-					<img
-						src=${urlHasPath ? favicon : ''}
-						style=${styleMap(faviconStyles)}
-					>
+			<div id="info">
+				<div id="query" title=${this.query}>
+					<h2>Search Query</h2>
+					<div>
+						<img
+							src=${urlHasPath ? favicon : ''}
+							style=${styleMap(faviconStyles)}
+						>
+						<h3>
+							${isQueryURL ? getShortURL(new URL(this.query), urlHasPath) : this.query ? getShortString(this.query) : nothing}
+						</h3>
+					</div>
+				</div>
+				<div id="vaults">
+					<h2>Active Vaults</h2>
 					<h3>
-						${isQueryURL ? this.getShortURL(new URL(this.query), urlHasPath) : this.query ? getShortString(this.query) : nothing}
+						${asyncAppend(this.getVaultsIterable(), (_vault) => {
+							const vault = _vault as Vault & { error: boolean };
+							return vault === null ? nothing : html`<span class=${classMap({ error: vault.error })} title=${vault.error ? 'Vault could not connect.' : `port: ${vault.port}`}>${vault.name}</span>`
+						})}
 					</h3>
 				</div>
 			</div>
 			<ol id="content">
 				${omnisearchContent()}
 			</ol>
-			<div id="preview-wrapper">
+			<div id="preview">
 				<button
 					title=${`${this.previewOpen ? 'Close' : 'Open'} preview window`}
 					@click=${() => {
@@ -274,14 +299,23 @@ export class PopupComponent extends LitElement {
 	}
 
 	/**
-	 * Returns a shortened URL path
+	 * Yields an iterable of active vault names
 	 */
-	getShortURL(url: URL, urlHasPath: boolean){
-		// Return host if url has no path
-		if(!urlHasPath) return url.host;
-		const path = url.pathname;
+	private async * getVaultsIterable(): AsyncIterable<Vault | null> {
+		const vaults = await this.storage.getVaults();
+		const activeVaults = vaults.filter((vault) => vault.active);
 
-		return getShortString(path);
+		const activeVaultsWithErrors = activeVaults.map((vault) => {
+			return {...vault, error: this.errors.some((errorVault) => _.isEqual(errorVault, vault))};
+		})
+
+		// If there are active vaults, yield the names. Otherwise yield null.
+		if(activeVaultsWithErrors.length > 0) {
+			for await(const vault of activeVaultsWithErrors) {
+				yield vault;
+			}
+		}
+		else yield null;
 	}
 }
 

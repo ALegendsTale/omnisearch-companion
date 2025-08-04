@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import Storage, { SettingsType } from "../../utils/storage";
+import Storage, { SettingsType, Vault } from "../../utils/storage";
 import _ from 'lodash'
 import { createElement, Moon, Sun } from "lucide";
 
@@ -8,12 +8,15 @@ import '../header-component';
 import './settings-button';
 import './settings-dropdown';
 import './settings-input';
+import './settings-menu';
+import { globalStyles } from '../../styles/styles';
 
 type Display = "popup" | "embed";
 
 @customElement('settings-component')
 export class SettingsComponent extends LitElement {
 	static override styles = [
+		globalStyles,
 		css`
 			:host {
 				display: flex;
@@ -42,7 +45,7 @@ export class SettingsComponent extends LitElement {
 					display: none;
 				}
 
-				h3 {
+				h2 {
 					display: none;
 				}
 			}
@@ -55,11 +58,9 @@ export class SettingsComponent extends LitElement {
 				width: 100%;
 				height: 100vh;
 
-				h3 {
-					color: var(--light-purple);
+				h2 {
+					color: var(--highlight);
 					font-weight: bold;
-					font-family: Inter;
-					font-size: 1.25rem;
 					margin: 5%;
 				}
 			}
@@ -69,7 +70,6 @@ export class SettingsComponent extends LitElement {
 				flex-direction: column;
 				background-color: var(--text-box);
 				border-radius: 5px;
-				font-size: 1rem;
 				padding: 5%;
 				margin-bottom: 5%;
 				flex-wrap: nowrap;
@@ -93,12 +93,16 @@ export class SettingsComponent extends LitElement {
 	display: Display = "popup";
 
 	@state()
-	settings: SettingsType = this.storage.defaultValues;
+	settings: SettingsType = this.storage.defaultSettings;
+
+	@state()
+	vaults = this.storage.defaultVaults;
 
 	override connectedCallback() {
 		super.connectedCallback();
 
 		this.loadSettings();
+		this.loadVaults();
 	}
 
 	override render() {
@@ -112,18 +116,18 @@ export class SettingsComponent extends LitElement {
 					buttonTitle='Close settings and save'
 					@buttonclicked=${() => this.toggleDisplay()}
 				></header-component>
-				<h3>Settings</h3>
+				<h2>Settings</h2>
 				<div id="content">
 					<form
 						accept-charset="UTF-8"
 					>
-						<settings-input
-							id="Port"
-							fieldName="Port"
-							fieldDescription="Set this to the same port that your Omnisearch server is set to."
-							value=${this.settings.port.toString()}
-							@updatevalue=${async (e: CustomEventInit<SettingsType['port']>) => await this.updateSettings({ port: e.detail || this.settings.port })}
-						></settings-input>
+						<settings-menu
+							id="vault"
+							fieldName="Vault"
+							fieldDescription="Select, add, or remove vault"
+							.vaults=${this.vaults}
+							@updatevault=${async (e: CustomEventInit<Vault[]>) => this.updateVaults(e.detail || this.vaults)}
+						></settings-menu>
 						<settings-input
 							id="NotesShown"
 							fieldName="Notes Shown"
@@ -199,7 +203,7 @@ export class SettingsComponent extends LitElement {
 	 * Load settings from storage and restore values to `SettingsFields`
 	 */
 	protected async loadSettings() {
-		this.settings = await this.storage.getSettingsStorage();
+		this.settings = await this.storage.getSettings();
 
 		// Set loaded theme
 		this.setTheme(this.settings.theme);
@@ -209,7 +213,28 @@ export class SettingsComponent extends LitElement {
 	 * Save settings to storage
 	 */
 	protected async saveSettings() {
-		await this.storage.setSettingsStorage(this.settings);
+		await this.storage.setSettings(this.settings);
+	}
+
+	protected async updateVaults(updatedVaults: Vault[]) {
+		// Only update if settings have been changed
+		if(!_.isEqual(this.vaults, updatedVaults)) this.vaults = updatedVaults;
+
+		await this.saveVaults();
+	}
+
+	/**
+	 * Load settings from storage and restore values to `SettingsFields`
+	 */
+	protected async loadVaults() {
+		this.vaults = await this.storage.getVaults();
+	}
+
+	/**
+	 * Save settings to storage
+	 */
+	protected async saveVaults() {
+		await this.storage.setVaults(this.vaults);
 	}
 }
 

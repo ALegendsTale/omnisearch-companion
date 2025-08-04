@@ -1,11 +1,13 @@
 import { LitElement, html, css, nothing, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js"
 import Storage, { SettingsType } from "../../utils/storage";
+import { globalStyles } from "../../styles/styles";
 
 @customElement("settings-field")
 export class SettingsField<T extends keyof SettingsType> extends LitElement {
 	static override styles = [
-	css`
+		globalStyles,
+		css`
 			:host {
 				margin-bottom: 20px;
 			}
@@ -21,45 +23,20 @@ export class SettingsField<T extends keyof SettingsType> extends LitElement {
 				margin-right: 5%;
 
 				.name {
-					font-size: 1rem;
-					font-family: Inter;
 					margin-bottom: 1%;
-				}
-
-				.description {
-					font-size: .7rem;
-					font-family: Inter;
 				}
 			}
 
 			#content {
 				position:  relative;
 				display: flex;
-				flex-direction: row;
 				flex-basis: 88px;
 				flex-shrink: 0;
-				justify-content: center;
 				align-items: center;
+			}
 
-				button {
-					display: flex;
-					justify-content: center;
-					align-items: center;
-
-					svg {
-						width: 90%;
-						height: 90%;
-						stroke: var(--text);
-					}
-
-					&:hover {
-						background-color: var(--background);
-					}
-
-					&:hover > svg {
-						stroke: var(--highlight);
-					}
-				}
+			svg {
+				stroke: var(--text);
 			}
 		`
 	];
@@ -82,12 +59,12 @@ export class SettingsField<T extends keyof SettingsType> extends LitElement {
 		return html`
 			<div id="wrapper">
 				<div id="setting">
-					<span class="name">
+					<p class="name">
 						${this.fieldName}
-					</span>
-					<span class="description">
+					</p>
+					<p small class="description">
 						${this.fieldDescription}
-					</span>
+					</p>
 				</div>
 				<div id="content">
 					${this._renderInterfaceContent()}
@@ -130,7 +107,7 @@ export class SettingsField<T extends keyof SettingsType> extends LitElement {
 	 */
 	public getDefaultValue(): SettingsType[T] {
 		const fieldNameCamel = this.fieldName.charAt(0).toLowerCase() + this.fieldName.slice(1).replace(' ', '') as T;
-		return this.storage.defaultValues[fieldNameCamel];
+		return this.storage.defaultSettings[fieldNameCamel];
 	}
 }
 

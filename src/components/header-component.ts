@@ -1,10 +1,12 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property, query } from "lit/decorators.js"
 import { createElement, Settings as SettingsIcon, Save as SaveIcon } from "lucide";
+import { globalStyles } from "../styles/styles";
 
 @customElement("header-component")
 export class HeaderComponent extends LitElement {
 	static override styles = [
+		globalStyles,
 		css`
 			:host {
 				width: 100%;
@@ -22,9 +24,6 @@ export class HeaderComponent extends LitElement {
 			}
 
 			h1 {
-				font-family: Inter;
-				font-weight: bold;
-				font-size: 1.5rem;
 				color: var(--off-white);
 				white-space: nowrap;
 			}
@@ -42,8 +41,8 @@ export class HeaderComponent extends LitElement {
 			svg {
 				background-color: transparent;
 				stroke: white;
-				width: 1.5rem;
-				height: 1.5rem;
+				width: var(--step-2);
+				height: var(--step-2);
 			}
 		`
 	];

@@ -7,16 +7,25 @@ export class SettingsButton extends SettingsField<'theme'> {
 	static override styles = [
 		...SettingsField.styles,
 		css`
+			#content {
+				justify-content: center;
+			}
+
 			button {
 				cursor: pointer;
 				width: 32px;
 				height: 32px;
 				background-color: transparent;
 				border: none;
+				place-items: center;
 
 				&:hover {
 					border-radius: 314px;
 				}
+			}
+
+			button:hover ::slotted(svg) {
+				stroke: var(--highlight);
 			}
 		`
 	];

@@ -5,7 +5,7 @@ import { SettingsField } from "./settings-field";
 import { createElement, Undo2 } from "lucide";
 
 @customElement("settings-input")
-export class SettingsInput extends SettingsField<'notesScore' | 'notesShown' | 'port'> {
+export class SettingsInput extends SettingsField<'notesScore' | 'notesShown'> {
 	static override styles = [
 		...SettingsField.styles,
 		css`
@@ -13,11 +13,10 @@ export class SettingsInput extends SettingsField<'notesScore' | 'notesShown' | '
 				width: 88px;
 				height: 24px;
 				padding-left: 10px;
-				font-size: .8rem;
-				font-family: Inter;
 				box-sizing: border-box;
 				color: var(--dark);
 				background-color: var(--off-white);
+				border: var(--text) 2px solid;
 
 				&:hover {
 					color: var(--purple);

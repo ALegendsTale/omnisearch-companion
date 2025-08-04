@@ -1,9 +1,9 @@
 import { html, css } from "lit";
-import { customElement, property, query } from "lit/decorators.js"
+import { customElement, property, query } from "lit/decorators.js";
+import { styleMap } from "lit/directives/style-map.js";
 import { SettingsField } from "./settings-field";
 import { createElement, Undo2 } from "lucide";
 import { SearchType } from "../../utils/storage";
-import { styleMap } from "lit/directives/style-map.js";
 
 @customElement("settings-dropdown")
 export class SettingsDropdown extends SettingsField<'searchType'> {
@@ -15,12 +15,9 @@ export class SettingsDropdown extends SettingsField<'searchType'> {
 				position: relative;
 				width: 88px;
 				height: 24px;
-				font-size: .8rem;
-				font-family: Inter;
 				box-sizing: border-box;
 				color: var(--dark);
 				background-color: var(--off-white);
-				border: 2px inset #EBE9ED;
 
 				input {
 					display: flex;
@@ -28,12 +25,12 @@ export class SettingsDropdown extends SettingsField<'searchType'> {
 					align-items: center;
 					cursor: pointer;
 					user-select: none;
-					font-family: Inter;
 					border: none;
 					background: none;
 					padding: 0 0 0 10px;
 					text-align: left;
 					color: var(--dark);
+					border: var(--text) 2px solid;
 
 					&:hover {
 						color: var(--purple);
@@ -52,11 +49,9 @@ export class SettingsDropdown extends SettingsField<'searchType'> {
 					padding: 5px 9px;
 					margin: 0;
 					z-index: 1;
-					background-color: var(--grey); 
+					background-color: var(--grey);
 
 					li {
-						font-size: .8rem;
-						font-family: Inter;
 						color: var(--dark);
 						cursor: pointer;
 						user-select: none;
@@ -142,7 +137,9 @@ export class SettingsDropdown extends SettingsField<'searchType'> {
 									this.open = false;
 								}}
 							>
-								${val}
+								<p>
+									${val}
+								</p>
 							</li>
 						`
 					})}

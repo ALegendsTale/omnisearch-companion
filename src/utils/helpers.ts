@@ -42,6 +42,17 @@ export function getShortString(query: string, maxChars = 30) {
 }
 
 /**
+ * Returns a shortened URL path
+ */
+export function getShortURL(url: URL, urlHasPath: boolean){
+	// Return host if url has no path
+	if(!urlHasPath) return url.host;
+	const path = url.pathname;
+
+	return getShortString(path);
+}
+
+/**
  * Removes search parameters from URL
  */
 export function splitURLSearchParams(url: string | undefined) {
