@@ -21,7 +21,7 @@ export const globalStyles = css`
 		font-size: var(--step-1);
 	}
 
-	h3, p, input, u {
+	h3, p, input, u, a {
 		font-size: var(--step-0);
 	}
 
