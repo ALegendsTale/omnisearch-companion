@@ -28,7 +28,7 @@ export const browserAction = isManifestV3() ? browser.action : browser.browserAc
 /**
  * Returns a shortened string
  */
-export function getShortString(query: string, maxChars = 24) {
+export function getShortString(query: string, maxChars = 16) {
 	// Do nothing if query doesn't need to be shortened
 	if (query.length < maxChars) return query;
 
