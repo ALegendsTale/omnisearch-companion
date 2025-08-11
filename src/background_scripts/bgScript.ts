@@ -172,14 +172,13 @@ async function loadNotes(_query: string | Tab) {
 		// Remove duplicates (overwrites based on basename key)
 		const uniqueNotes = flattenedResults.reduce((map, note) => {
 			const existingNote = map.get(note.basename);
-			// Combine score if note already exists
-			if(existingNote) existingNote.score += note.score;
-			// Add new note
-			else map.set(note.basename, note);
+			// Add note if it is new or has a higher score
+			if(!existingNote || note.score > existingNote.score) map.set(note.basename, note);
 			return map;
 		}, new Map<string, ResultNoteApi>());
 
-		const rawNotes = [...uniqueNotes.values()];
+		const rawNotes = [...uniqueNotes.values()]
+			.sort((a, b) => b.score - a.score);
 
 		// Get any errors that occurred (remove null or undefined)
 		const errors = results.flatMap(result => result?.error ? [result.error] : []);

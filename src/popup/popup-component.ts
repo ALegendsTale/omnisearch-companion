@@ -50,6 +50,7 @@ export class PopupComponent extends LitElement {
 					color: var(--text);
 					background: var(--text-box);
 					border: none;
+					cursor: pointer;
 
 					&:hover {
 						color: var(--highlight);
@@ -140,7 +141,8 @@ export class PopupComponent extends LitElement {
 				background-color: var(--text-box);
 				border-radius: 5px;
 				margin: 0 5% 5% 5%;
-				padding: 5% 5% 5% 10%;
+				padding-block: 5%;
+				padding-inline: 10%;
 				flex-wrap: nowrap;
 				color: var(--text);
 				width: 75%;
@@ -154,6 +156,26 @@ export class PopupComponent extends LitElement {
 					color: var(--text);
 					text-align: center;
 					max-width: 400px;
+				}
+
+				.show-hidden {
+					place-self: center;
+					width: fit-content;
+					background-color: var(--background);
+					border: none;
+					cursor: pointer;
+					padding: 5px;
+					margin-top: 20px;
+
+					&:hover p {
+						color: var(--highlight);
+					}
+				}
+
+				.filtered-header {
+					margin-block: 20px;
+					color: var(--highlight);
+					text-align: center;
 				}
 			}
 			
@@ -191,6 +213,8 @@ export class PopupComponent extends LitElement {
 	notes: ResultNoteApi[] = [];
 	@property({ type: Array })
 	errors: Vault[] = [];
+	@property({ type: Boolean, reflect: true })
+	showHidden: Boolean = false;
 
 	@query('settings-component')
 	settings!: SettingsComponent;
@@ -280,11 +304,11 @@ export class PopupComponent extends LitElement {
 				`;
 			}
 			else {
-				return this.notes.map((note) => {
+				return (this.showHidden ? this.rawNotes : this.notes).map((note, index) => {
 					return html`
 						<note-item
 							title=${
-								`Vault:\n${note.vault}\n\nMatching Words:\n${note.foundWords.join('\n')}`
+								`Vault: ${note.vault}\n\nScore: ${note.score.toFixed(2)}\n\nMatching Words:\n${note.foundWords.join('\n')}`
 							}
 							@clicknote=${() => {
 								// Open deep-link directly without creating tab / window
@@ -299,6 +323,13 @@ export class PopupComponent extends LitElement {
 						>
 							${note.basename}
 						</note-item>
+						${
+							this.notes.length - 1 === index && this.showHidden ?
+							html`
+								<h3 class="filtered-header">Filtered notes</h3>
+							`
+							: nothing
+						}
 					`;
 				})
 			}
@@ -331,6 +362,14 @@ export class PopupComponent extends LitElement {
 			</div>
 			<ol id="content">
 				${omnisearchContent()}
+				<button
+					class="show-hidden"
+					title="Shows any notes that have been filtered out by score or are hidden."
+					?hidden=${this.showHidden === true || this.rawNotes.length <= this.notes.length}
+					@click=${() => this.showHidden = !this.showHidden}
+				>
+					<p>Show filtered notes</p>
+				</button>
 			</ol>
 			<div id="preview">
 				<button
