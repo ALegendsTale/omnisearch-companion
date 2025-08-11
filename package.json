@@ -1,6 +1,6 @@
 {
 	"name": "omnisearch-companion",
-	"version": "2.1.0",
+	"version": "2.2.0",
 	"scripts": {
 		"build": "rimraf dist && npm run build-ff && npm run build-cr",
 		"start-ff": "npm run build-ff && web-ext run -s dist/firefox --devtools",
