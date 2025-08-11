@@ -151,8 +151,9 @@ async function loadNotes(_query: string | Tab) {
 	const activeVaults = vaults.filter((vault) => vault.active);
 	const queriesToSearch = getQueriesToSearch(_query, settings).filter(query => query != null);
 
-	// Return if there are no queries
+	// Reset and return if there are no queries
 	if(queriesToSearch.length === 0) {
+		await browser.storage.local.set({ rawNotes: '[]', notes: '[]', errors: '[]' });
 		loading = false;
 		return;
 	}
@@ -167,10 +168,18 @@ async function loadNotes(_query: string | Tab) {
 		const rawPromiseResults = await Promise.all(getNotesPromises);
 		const results = rawPromiseResults.filter(item => item !== null);
 
-		const flattenedResults = results.flatMap(result => result.notes);
+		// Flatten results and split into two arrays
+		const [flatNotes, flatErrors] = results.reduce(
+			([notes, errors], result) => {
+				if(result.notes) notes.push(...result.notes)
+				if(result.error) errors.push(result.error || []);
+				return [notes, errors];
+			},
+			[[] as ResultNoteApi[], [] as Vault[]]
+		);
 
 		// Remove duplicates (overwrites based on basename key)
-		const uniqueNotes = flattenedResults.reduce((map, note) => {
+		const uniqueNotes = flatNotes.reduce((map, note) => {
 			const existingNote = map.get(note.basename);
 			// Add note if it is new or has a higher score
 			if(!existingNote || note.score > existingNote.score) map.set(note.basename, note);
@@ -179,9 +188,6 @@ async function loadNotes(_query: string | Tab) {
 
 		const rawNotes = [...uniqueNotes.values()]
 			.sort((a, b) => b.score - a.score);
-
-		// Get any errors that occurred (remove null or undefined)
-		const errors = results.flatMap(result => result?.error ? [result.error] : []);
 
 		// Process notes
 		const notes = rawNotes
@@ -199,7 +205,7 @@ async function loadNotes(_query: string | Tab) {
 		}
 
 		// Save
-		await browser.storage.local.set({ rawNotes: JSON.stringify(rawNotes), notes: JSON.stringify(notes), errors: JSON.stringify(errors) });
+		await browser.storage.local.set({ rawNotes: JSON.stringify(rawNotes), notes: JSON.stringify(notes), errors: JSON.stringify(flatErrors) });
 		loading = false;
 	}
 	catch(e) {
