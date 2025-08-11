@@ -205,6 +205,8 @@ export class SettingsComponent extends LitElement {
 	protected async loadSettings() {
 		this.settings = await this.storage.getSettings();
 
+		this.migrateSettings();
+
 		// Set loaded theme
 		this.setTheme(this.settings.theme);
 	}
@@ -214,6 +216,17 @@ export class SettingsComponent extends LitElement {
 	 */
 	protected async saveSettings() {
 		await this.storage.setSettings(this.settings);
+	}
+
+	/**
+	 * Migrate any old settings
+	 */
+	protected async migrateSettings() {
+		// @ts-expect-error (searchType setting migration from Both to Auto)
+		if(this.settings.searchType === 'Both') {
+			this.settings = { ...this.settings, searchType: 'Auto' };
+			await this.saveSettings();
+		}
 	}
 
 	protected async updateVaults(updatedVaults: Vault[]) {
