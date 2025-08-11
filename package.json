@@ -34,6 +34,7 @@
 		"lodash": "^4.17.21",
 		"lucide": "^0.335.0",
 		"sanitize-html": "^2.12.1",
-		"showdown": "^2.1.0"
+		"showdown": "^2.1.0",
+		"tldts": "^7.0.11"
 	}
 }

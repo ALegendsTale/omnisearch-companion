@@ -131,28 +131,28 @@ export class SettingsComponent extends LitElement {
 						<settings-input
 							id="NotesShown"
 							fieldName="Notes Shown"
-							fieldDescription="The number of notes shown per query."
+							fieldDescription="The number of items displayed."
 							value=${this.settings.notesShown.toString()}
 							@updatevalue=${async (e: CustomEventInit<SettingsType['notesShown']>) => await this.updateSettings({ notesShown: e.detail || this.settings.notesShown })}
 						></settings-input>
 						<settings-input
 							id="NotesScore"
 							fieldName="Notes Score"
-							fieldDescription="Filter notes by how closely they relate to your query. Score ranges from 0 - 100."
+							fieldDescription="Filter results by relevance, from 0 (less relevant) to 100 (more relevant)."
 							value=${this.settings.notesScore.toString()}
 							@updatevalue=${async (e: CustomEventInit<SettingsType['notesScore']>) => await this.updateSettings({ notesScore: e.detail || this.settings.notesScore })}
 						></settings-input>
 						<settings-dropdown
 							id="SearchType"
 							fieldName="Search Type"
-							fieldDescription="Query: Searches notes from search engine matches. URL: Searches notes from full-text URL."
+							fieldDescription="Query: Search notes based on URL query (?=). URL: Search notes based on full-text URL."
 							value=${this.settings.searchType}
 							@updatevalue=${async (e: CustomEventInit<SettingsType['searchType']>) => await this.updateSettings({ searchType: e.detail || this.settings.searchType })}
 						></settings-dropdown>
 						<settings-button
 							id="Theme"
 							fieldName="Theme"
-							fieldDescription="Change appearance"
+							fieldDescription="Toggle between light and dark mode."
 							value=${this.settings.theme}
 							@updatevalue=${async (e: CustomEventInit<SettingsType['theme']>) => {
 								if(e.detail === undefined) return;

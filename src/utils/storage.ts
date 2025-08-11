@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 
 type NotesShown = string;
 type NotesScore = string;
-export type SearchType = "Query" | "URL" | "Both";
+export type SearchType = "Auto" | "Query" | "Full URL" | "Partial URL" | "Title";
 export type ThemeType = "light" | "dark";
 
 export type SettingsType = {
@@ -22,14 +22,16 @@ export default class Storage {
 		this.defaultSettings = {
 			notesShown: '25',
 			notesScore: '10',
-			searchType: 'Both',
+			searchType: 'Auto',
 			theme: 'light'
 		}
-		this.defaultVaults = [{
-			name: 'default',
-			port: 51361,
-			active: true
-		}];
+		this.defaultVaults = [
+			{
+				name: 'default',
+				port: 51361,
+				active: true
+			},
+		];
 	}
 
 	/**

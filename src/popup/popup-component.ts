@@ -5,7 +5,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import browser from 'webextension-polyfill';
 import Showdown from "showdown";
-import { ChevronDown, ChevronUp, createElement } from "lucide";
+import { ChevronDown, ChevronUp, createElement, Settings as SettingsIcon } from "lucide";
 import sanitize from "sanitize-html";
 import { getShortString, getShortURL } from '../utils/helpers';
 import { ResultNoteApi } from '../types/OmnisearchTypes';
@@ -21,7 +21,7 @@ import { globalStyles } from '../styles/styles';
 import { asyncAppend } from 'lit/directives/async-append.js';
 import { classMap } from 'lit/directives/class-map.js';
 
-type Message = { query: string, notes: ResultNoteApi[], errors: Vault[] };
+type Message = { query: string, rawNotes: ResultNoteApi[], notes: ResultNoteApi[], errors: Vault[] };
 
 @customElement('popup-component')
 export class PopupComponent extends LitElement {
@@ -35,6 +35,7 @@ export class PopupComponent extends LitElement {
 				align-items: center;
 				width: 100%;
 				height: 100vh;
+				max-width: 400px;
 			}
 
 			#preview {
@@ -155,6 +156,28 @@ export class PopupComponent extends LitElement {
 					max-width: 400px;
 				}
 			}
+			
+			.settings {
+				display: flex;
+				flex-direction: column;
+				place-items: center;
+				gap: 5px;
+				margin-block: 5px;
+
+				button {
+					width: fit-content;
+					background-color: transparent;
+					border: none;
+					cursor: pointer;
+
+					svg {
+						background-color: transparent;
+						stroke: var(--highlight);
+						width: var(--step-1);
+						height: var(--step-1);
+					}
+				}
+			}
 		`,
 	];
 
@@ -162,6 +185,8 @@ export class PopupComponent extends LitElement {
 
 	@property({ type: String, reflect: true })
 	query: string = '';
+	@property({ type: Array })
+	rawNotes: ResultNoteApi[] = [];
 	@property({ type: Array })
 	notes: ResultNoteApi[] = [];
 	@property({ type: Array })
@@ -179,23 +204,33 @@ export class PopupComponent extends LitElement {
 	// Create new markdown > HTML converter object
 	showdown = new Showdown.Converter();
 
+	popupPort: browser.Runtime.Port | null = null;
+	
 	override connectedCallback(): void {
 		super.connectedCallback();
 
 		// Create & connect port to bgScript
-		let popupPort = browser.runtime.connect({ name: 'popup' });
-		if(popupPort.onMessage.hasListener(this.receiveMessage)) popupPort.onMessage.removeListener(this.receiveMessage);
-		// Create notes from received message
-		popupPort.onMessage.addListener((msg: Message) => this.receiveMessage(msg));
+		this.popupPort = browser.runtime.connect({ name: 'popup' });
+		this.popupPort.onMessage.addListener(this.receiveMessage.bind(this));
 
 		this.showdown.setFlavor('github');
 	}
 
+	override disconnectedCallback(): void {
+		super.disconnectedCallback();
+
+		if(this.popupPort) {
+			if(this.popupPort.onMessage.hasListener(this.receiveMessage)) this.popupPort.onMessage.removeListener(this.receiveMessage);
+			this.popupPort.disconnect();
+		}
+	}
+
 	/**
-	 * Receive message from background script
+	 * Create notes from received message
 	 */
-	receiveMessage(msg: Message) {
+	async receiveMessage(msg: Message) {
 		this.query = msg.query;
+		this.rawNotes = msg.rawNotes;
 		this.notes = msg.notes;
 		this.errors = msg.errors;
 	}
@@ -227,12 +262,30 @@ export class PopupComponent extends LitElement {
 				`;
 			}
 			else if(this.notes.length < 1) {
-				return html`<p>No notes match this query.</p>`;
+				const plural = this.rawNotes.length > 1;
+
+				return html`
+					<p>No notes match this query.</p>
+					${
+						this.rawNotes.length > 0 ?
+						html`
+							<div class="settings">
+								<p small>There ${plural ? 'are' : 'is'} ${this.rawNotes.length} hidden ${plural ? 'notes' : 'note'}. The score setting can be adjusted to view ${plural ? 'them' : 'it'}.</p>
+								<button class="settings" @click=${() => this.settings.toggleDisplay()}>${createElement(SettingsIcon)}</button>
+							</div>							
+						`
+						: nothing
+					}
+					
+				`;
 			}
 			else {
 				return this.notes.map((note) => {
 					return html`
 						<note-item
+							title=${
+								`Vault:\n${note.vault}\n\nMatching Words:\n${note.foundWords.join('\n')}`
+							}
 							@clicknote=${() => {
 								// Open deep-link directly without creating tab / window
 								browser.tabs.update({ url: `obsidian://open?vault=${note.vault}&file=${note.path}` });
@@ -252,9 +305,7 @@ export class PopupComponent extends LitElement {
 		}
 
 		return html`
-			<header-component
-				@buttonclicked=${() => this.settings.toggleDisplay()}
-			></header-component>
+			<header-component @buttonclicked=${() => this.settings.toggleDisplay()}></header-component>
 			<div id="info">
 				<div id="query" title=${this.query}>
 					<h2>Search Query</h2>

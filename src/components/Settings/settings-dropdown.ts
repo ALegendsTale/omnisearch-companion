@@ -104,9 +104,11 @@ export class SettingsDropdown extends SettingsField<'searchType'> {
 
 	protected override _renderInterfaceContent() {
 		const options: SearchType[] = [
-			'Both',
+			'Auto',
 			'Query',
-			'URL'
+			'Full URL',
+			'Partial URL',
+			'Title'
 		]
 
 		const styles = {
